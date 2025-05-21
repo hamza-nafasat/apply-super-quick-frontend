@@ -2,6 +2,7 @@
 import { Navigate } from 'react-router-dom';
 
 const roleRouteMap = {
+  admin: '/admin/admin-applications',
   applicant: '/applicants/applicants-applications',
   client: '/client/client-applications',
   employee: '/employees/employees-applications',

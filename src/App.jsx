@@ -3,6 +3,8 @@ import { Route, Routes } from 'react-router-dom';
 import CustomLoading from './components/shared/small/CustomLoading';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRedirect from './components/RoleRedirect';
+import AdminDashboard from './page/admin/dashboard';
+import AdminApplications from './page/admin/dashboard/admin-dashboard/AdminApplications';
 
 // Lazy components
 const Login = lazy(() => import('./page/auth/Login'));
@@ -28,7 +30,7 @@ const SuperBankApplications = lazy(
 
 const user = {
   isAuthenticated: true, // true or false
-  role: 'applicant', // try null, undefined, or wrong role to test role are (applicant, client, employee, superbank)
+  role: 'admin', // try null, undefined, or wrong role to test role are (applicant, client, employee, superbank)
 };
 
 function App() {
@@ -43,6 +45,16 @@ function App() {
         {user?.isAuthenticated && <Route path="/" element={<RoleRedirect user={user} />} />}
         {user?.isAuthenticated && <Route path="/otp" element={<RoleRedirect user={user} />} />}
 
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute user={user} role="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="admin-applications" element={<AdminApplications />} />
+        </Route>
         <Route
           path="/applicants/*"
           element={
