@@ -1,12 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200..1000;1,200..1000&family=Odor+Mean+Chey&display=swap');
-
+/* @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200..1000;1,200..1000&family=Odor+Mean+Chey&display=swap'); */
+@import 'tailwindcss';
 /* @tailwind base;
 @tailwind components;
 @tailwind utilities; */
 
 :root {
-  --odor-font: 'Odor Mean Chey', serif;
-  --nunito-font: 'Nunito Sans', serif;
+  --poppins: 'Poppins', sans-serif;
+  --light: #72ffe7;
+  --medium: #21ccb0;
+  --dark: #066969;
+  --aside-grad: linear-gradient(180deg, #039099 0%, rgba(197, 31, 255, 0.88) 111.68%);
+}
+@theme {
+  --color-light: var(--light);
+  --color-medium: var(--medium);
+  --color-dark: var(--dark);
 }
 body {
   padding: 0;
@@ -85,6 +93,9 @@ body {
 
 .grayscale-map .leaflet-tile {
   filter: grayscale(100%);
+}
+.scroll-0::-webkit-scrollbar {
+  width: 0;
 }
 
 /* bounce Welcome image */

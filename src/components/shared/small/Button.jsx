@@ -1,47 +1,14 @@
-/* eslint-disable react/prop-types */
+import React from 'react';
 
-const Button = ({
-  bg,
-  width,
-  height,
-  radius,
-  color,
-  text,
-  size,
-  weight,
-  cursor,
-  borderColor,
-  className,
-  Icon,
-  ...rest
-}) => {
-  const style = {
-    background: bg,
-    borderRadius: radius,
-    color: color ? color : "#fff",
-    fontWeight: weight,
-    border: borderColor ? `1px solid ${borderColor}` : "none",
-  };
-
+const Button = ({ label, onClick, className = '', type = 'button', ...props }) => {
   return (
     <button
-      style={style}
-      className={`flex items-center justify-center text-nowrap px-7 py-5 transition-all duration-300 hover:bg-[#3dc5ff] capitalize ${
-        width ? width : "w-full"
-      }
-      ${height ? height : "h-[36px]"} 
-      ${size ? size : "text-xs sm:text-sm md:text-base"} 
-      ${cursor ? cursor : "pointer"}
-      ${bg ? bg : "bg-primary-lightBlue"}
-      ${radius ? radius : "rounded-[8px]"}
-      disabled:cursor-not-allowed
-      disabled:opacity-50
-      ${className}
-      `}
-      {...rest}
+      type={type}
+      onClick={onClick}
+      className={`bg-medium hover:bg-dark w-full cursor-pointer rounded-md px-4 py-2 text-base font-bold text-white transition-all duration-300 ${className}`}
+      {...props}
     >
-      {text}
-      {Icon && <Icon fontSize={20} />}
+      {label}
     </button>
   );
 };

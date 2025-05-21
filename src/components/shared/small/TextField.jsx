@@ -2,14 +2,12 @@
 
 const TextField = ({ label, Icon, ...rest }) => {
   return (
-    <div className="flex flex-col  gap-1 w-full">
-      {label && (
-        <label className="text-sm md:text-base font-[600]">{label}</label>
-      )}
-      <section className="w-full border bg-white rounded-[10px] border-primary-lightGray px-4 flex items-center gap-3">
+    <div className="flex w-full flex-col gap-1">
+      {label && <label className="text-start text-sm font-[600] md:text-base">{label}</label>}
+      <section className="border-light flex w-full items-center gap-3 rounded-lg border bg-white">
         {Icon && Icon}
         <input
-          className="w-full border-none  outline-none text-sm md:text-base h-[45px] md:h-[50px]"
+          className="outline-hover h-[45px] w-full rounded-lg border-none px-4 text-sm text-gray-600 md:h-[50px] md:text-base"
           {...rest}
         />
       </section>
