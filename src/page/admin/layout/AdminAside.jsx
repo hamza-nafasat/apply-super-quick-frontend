@@ -56,7 +56,7 @@ const AdminAside = () => {
                 to={page.link}
                 className={`flex w-full min-w-fit cursor-pointer items-center p-2 transition-all duration-400 ${
                   isNavOpen ? 'gap-2' : 'gap-[0]'
-                } ${isActive ? 'bg-dark rounded-md text-white' : ''}`}
+                } ${isActive ? 'bg-medium rounded-md text-white' : ''}`}
               >
                 <div className={`text-[20px] ${isActive ? 'text-white' : 'text-[#526581]'}`}>{page.icon}</div>
                 <p

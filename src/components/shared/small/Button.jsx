@@ -5,7 +5,7 @@ const Button = ({ label, onClick, className = '', type = 'button', ...props }) =
     <button
       type={type}
       onClick={onClick}
-      className={`bg-medium hover:bg-dark w-full cursor-pointer rounded-md px-4 py-2 text-base font-bold text-white transition-all duration-300 ${className}`}
+      className={`hover:bg-medium border-medium w-full cursor-pointer rounded-md border-2 bg-transparent px-4 py-2 text-base font-bold text-black transition-all duration-300 hover:text-white ${className}`}
       {...props}
     >
       {label}

@@ -1,148 +1,438 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import DataTable from 'react-data-table-component';
+import { MoreVertical } from 'lucide-react';
+import { tableStyles } from '@/data/data';
+import Modal from '../shared/Modal';
 import Button from '../shared/small/Button';
-import { Eye, EyeOff } from 'lucide-react';
+import { USER_TYPES, USER_STATUS, INITIAL_USER_FORM, USER_TABLE_COLUMNS } from '@/constants/userConstants';
+import { validateUserForm, validatePassword } from '@/utils/userUtils';
 
 const UserTable = () => {
   const [users, setUsers] = useState([
     {
       id: 1,
       name: 'Alice Johnson',
-      role: 'Admin',
+      type: USER_TYPES.ADMIN,
+      businessName: '',
       email: 'alice@example.com',
       password: 'alicepass',
+      createDate: '2023-01-01',
+      status: USER_STATUS.ACTIVE,
+      allowAdminAccess: true,
     },
     {
       id: 2,
       name: 'Bob Smith',
-      role: 'User',
+      type: USER_TYPES.TEAM_MEMBER,
+      businessName: '',
       email: 'bob@example.com',
       password: 'bobpass123',
+      createDate: '2023-01-05',
+      status: USER_STATUS.ACTIVE,
+      allowAdminAccess: false,
+    },
+    {
+      id: 3,
+      name: 'Acme Corp',
+      type: USER_TYPES.CLIENT,
+      businessName: 'Acme Corporation',
+      email: 'contact@acme.com',
+      password: 'acmepass123',
+      createDate: '2023-01-10',
+      status: USER_STATUS.ACTIVE,
+      allowAdminAccess: false,
     },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [visiblePasswords, setVisiblePasswords] = useState({});
+  const [editModalData, setEditModalData] = useState(null);
+  const [passwordModalData, setPasswordModalData] = useState(null);
+  const [actionMenu, setActionMenu] = useState(null);
+  const [formData, setFormData] = useState(INITIAL_USER_FORM);
+  const [formErrors, setFormErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    role: '',
-    email: '',
-    password: '',
-  });
+  const handleInputChange = useCallback(
+    e => {
+      const { name, value, type, checked } = e.target;
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+        // Clear business name if type doesn't require it
+        ...(name === 'type' && !['client', 'client-mbr', 'super-bank'].includes(value) ? { businessName: '' } : {}),
+      }));
+      if (formErrors[name]) {
+        setFormErrors(prev => ({ ...prev, [name]: null }));
+      }
+    },
+    [formErrors]
+  );
 
-  const handleInputChange = e => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleAddUser = useCallback(async () => {
+    const errors = validateUserForm(formData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
 
-  const handleAddUser = () => {
-    if (formData.name && formData.email && formData.role && formData.password) {
+    setIsLoading(true);
+    try {
+      const date = new Date().toISOString().split('T')[0];
       setUsers(prev => [
         ...prev,
         {
           ...formData,
           id: prev.length + 1,
+          createDate: date,
+          status: USER_STATUS.ACTIVE,
+          allowAdminAccess: formData.type === USER_TYPES.TEAM_MEMBER ? formData.allowAdminAccess : false,
         },
       ]);
-      setFormData({ name: '', role: '', email: '', password: '' });
+      setFormData(INITIAL_USER_FORM);
       setIsModalOpen(false);
-    } else {
-      alert('Please fill all fields');
+      setFormErrors({});
+    } catch (error) {
+      console.error('Error adding user:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [formData]);
 
-  const togglePasswordVisibility = id => {
-    setVisiblePasswords(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
+  const handleEditUser = useCallback(async () => {
+    const errors = validateUserForm(editModalData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
 
-  const columns = [
-    { name: 'Name', selector: row => row.name, sortable: true },
-    { name: 'Role', selector: row => row.role, sortable: true },
-    { name: 'Email', selector: row => row.email },
-    {
-      name: 'Password',
-      cell: row => (
-        <div className="flex items-center gap-2">
-          <span>{visiblePasswords[row.id] ? row.password : '********'}</span>
-          <button onClick={() => togglePasswordVisibility(row.id)} className="text-gray-600">
-            {visiblePasswords[row.id] ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
+    setIsLoading(true);
+    try {
+      setUsers(prev =>
+        prev.map(user =>
+          user.id === editModalData.id
+            ? {
+                ...editModalData,
+                allowAdminAccess:
+                  editModalData.type === USER_TYPES.TEAM_MEMBER ? editModalData.allowAdminAccess : false,
+              }
+            : user
+        )
+      );
+      setEditModalData(null);
+      setFormErrors({});
+    } catch (error) {
+      console.error('Error editing user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [editModalData]);
+
+  const handleChangePassword = useCallback(async () => {
+    if (!passwordModalData?.password) {
+      setFormErrors({ password: ['Password is required'] });
+      return;
+    }
+
+    const passwordErrors = validatePassword(passwordModalData.password);
+    if (passwordErrors.length > 0) {
+      setFormErrors({ password: passwordErrors });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      setUsers(prev =>
+        prev.map(user => (user.id === passwordModalData.id ? { ...user, password: passwordModalData.password } : user))
+      );
+      setPasswordModalData(null);
+      setFormErrors({});
+    } catch (error) {
+      console.error('Error changing password:', error);
+      // Handle error appropriately
+    } finally {
+      setIsLoading(false);
+    }
+  }, [passwordModalData]);
+
+  const handleDeleteUser = useCallback(async id => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      setUsers(prev => prev.filter(user => user.id !== id));
+      setActionMenu(null);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      // Handle error appropriately
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const renderFormField = useCallback((field, value, onChange, type = 'text', error = null, options = null) => {
+    const labelText = field
+      .split(/(?=[A-Z])/)
+      .join(' ')
+      .replace(/^\w/, c => c.toUpperCase());
+
+    if (type === 'select' && options) {
+      return (
+        <div className="mb-4">
+          <label className="mb-1 block text-sm font-medium text-gray-700">{labelText}</label>
+          <select
+            name={field}
+            value={value}
+            onChange={onChange}
+            className={`focus:border-primary focus:ring-primary/20 w-full rounded-md border px-4 py-2 text-sm shadow-sm transition focus:ring ${
+              error ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">Select {labelText}</option>
+            {options.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
         </div>
-      ),
-    },
-  ];
+      );
+    }
+
+    if (type === 'checkbox') {
+      return (
+        <div className="mb-4 flex items-center space-x-2">
+          <input
+            type="checkbox"
+            name={field}
+            checked={value}
+            onChange={onChange}
+            className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
+          />
+          <label className="text-sm text-gray-700">{labelText}</label>
+          {error && <p className="ml-2 text-xs text-red-500">{error}</p>}
+        </div>
+      );
+    }
+
+    return (
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-gray-700">{labelText}</label>
+        <input
+          name={field}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={`Enter ${labelText}`}
+          className={`focus:border-primary focus:ring-primary/20 w-full rounded-md border px-4 py-2 text-sm shadow-sm transition focus:ring ${
+            error ? 'border-red-500' : 'border-gray-300'
+          }`}
+        />
+        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      </div>
+    );
+  }, []);
+
+  const userTypeOptions = useMemo(
+    () => [
+      { value: USER_TYPES.ADMIN, label: 'Admin' },
+      { value: USER_TYPES.TEAM_MEMBER, label: 'Team Member' },
+      { value: USER_TYPES.CLIENT, label: 'Client' },
+      { value: USER_TYPES.CLIENT_MEMBER, label: 'Client Member' },
+      { value: USER_TYPES.SUPER_BANK, label: 'Super Bank' },
+    ],
+    []
+  );
+
+  const columns = useMemo(
+    () => [
+      ...USER_TABLE_COLUMNS,
+      {
+        name: 'Action',
+        cell: row => (
+          <div className="relative">
+            <button
+              onClick={() => setActionMenu(row.id)}
+              className="rounded p-1 hover:bg-gray-100"
+              aria-label="Actions"
+            >
+              <MoreVertical size={18} />
+            </button>
+            {actionMenu === row.id && (
+              <div className="absolute z-[9999] mt-2 w-40 rounded border bg-white shadow-lg">
+                <button
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  onClick={() => {
+                    setEditModalData({ ...row });
+                    setActionMenu(null);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                  onClick={() => {
+                    setPasswordModalData({ id: row.id, password: '' });
+                    setActionMenu(null);
+                  }}
+                >
+                  Change Password
+                </button>
+                <button
+                  className="block w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
+                  onClick={() => handleDeleteUser(row.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [actionMenu, handleDeleteUser]
+  );
 
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">User Table</h2>
         <div>
-          <Button label="Add User" onClick={() => setIsModalOpen(true)} />
+          <Button label="Add User" onClick={() => setIsModalOpen(true)} disabled={isLoading} />
         </div>
       </div>
 
-      <DataTable columns={columns} data={users} pagination highlightOnHover striped responsive />
+      <DataTable
+        customStyles={tableStyles}
+        columns={columns}
+        data={users}
+        pagination
+        highlightOnHover
+        progressPending={isLoading}
+        noDataComponent="No users found"
+      />
 
+      {/* Add User Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-[90%] max-w-md rounded-md bg-white p-6 shadow-lg">
-            <h3 className="mb-4 text-lg font-semibold">Add New User</h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                className="w-full rounded border p-2"
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-              <input
-                type="text"
-                name="role"
-                placeholder="Role"
-                className="w-full rounded border p-2"
-                value={formData.role}
-                onChange={handleInputChange}
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                className="w-full rounded border p-2"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-              <div className="relative">
-                <input
-                  type={showPasswordModal ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Password"
-                  className="w-full rounded border p-2 pr-10"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                />
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 text-gray-600"
-                  onClick={() => setShowPasswordModal(prev => !prev)}
-                >
-                  {showPasswordModal ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button className="bg-red-500 hover:bg-red-600" label="Cancel" onClick={() => setIsModalOpen(false)} />
-              <Button label="Add" onClick={handleAddUser} />
-            </div>
-          </div>
-        </div>
+        <Modal
+          title="Add User"
+          onClose={() => {
+            setIsModalOpen(false);
+            setFormData(INITIAL_USER_FORM);
+            setFormErrors({});
+          }}
+          onSave={handleAddUser}
+          isLoading={isLoading}
+        >
+          {renderFormField('name', formData.name, handleInputChange, 'text', formErrors.name)}
+          {renderFormField('type', formData.type, handleInputChange, 'select', formErrors.type, userTypeOptions)}
+          {['client', 'client-mbr', 'super-bank'].includes(formData.type) &&
+            renderFormField('businessName', formData.businessName, handleInputChange, 'text', formErrors.businessName)}
+          {renderFormField('email', formData.email, handleInputChange, 'email', formErrors.email)}
+          {renderFormField('password', formData.password, handleInputChange, 'password', formErrors.password)}
+          {formData.type === USER_TYPES.TEAM_MEMBER &&
+            renderFormField(
+              'allowAdminAccess',
+              formData.allowAdminAccess,
+              handleInputChange,
+              'checkbox',
+              formErrors.allowAdminAccess
+            )}
+        </Modal>
+      )}
+
+      {/* Edit Modal */}
+      {editModalData && (
+        <Modal
+          title="Edit User"
+          onClose={() => {
+            setEditModalData(null);
+            setFormErrors({});
+          }}
+          onSave={handleEditUser}
+          isLoading={isLoading}
+        >
+          {renderFormField(
+            'name',
+            editModalData.name,
+            e => setEditModalData(prev => ({ ...prev, name: e.target.value })),
+            'text',
+            formErrors.name
+          )}
+          {renderFormField(
+            'type',
+            editModalData.type,
+            e => setEditModalData(prev => ({ ...prev, type: e.target.value })),
+            'select',
+            formErrors.type,
+            userTypeOptions
+          )}
+          {['client', 'client-mbr', 'super-bank'].includes(editModalData.type) &&
+            renderFormField(
+              'businessName',
+              editModalData.businessName,
+              e => setEditModalData(prev => ({ ...prev, businessName: e.target.value })),
+              'text',
+              formErrors.businessName
+            )}
+          {renderFormField(
+            'email',
+            editModalData.email,
+            e => setEditModalData(prev => ({ ...prev, email: e.target.value })),
+            'email',
+            formErrors.email
+          )}
+          {renderFormField(
+            'status',
+            editModalData.status,
+            e => setEditModalData(prev => ({ ...prev, status: e.target.value })),
+            'select',
+            formErrors.status,
+            [
+              { value: USER_STATUS.ACTIVE, label: 'Active' },
+              { value: USER_STATUS.INACTIVE, label: 'Inactive' },
+            ]
+          )}
+          {editModalData.type === USER_TYPES.TEAM_MEMBER &&
+            renderFormField(
+              'allowAdminAccess',
+              editModalData.allowAdminAccess,
+              e => setEditModalData(prev => ({ ...prev, allowAdminAccess: e.target.checked })),
+              'checkbox',
+              formErrors.allowAdminAccess
+            )}
+        </Modal>
+      )}
+
+      {/* Change Password Modal */}
+      {passwordModalData && (
+        <Modal
+          title="Change Password"
+          onClose={() => {
+            setPasswordModalData(null);
+            setFormErrors({});
+          }}
+          onSave={handleChangePassword}
+          isLoading={isLoading}
+        >
+          {renderFormField(
+            'password',
+            passwordModalData.password,
+            e => setPasswordModalData(prev => ({ ...prev, password: e.target.value })),
+            'password',
+            formErrors.password
+          )}
+        </Modal>
       )}
     </div>
   );
+};
+
+UserTable.propTypes = {
+  // Add any props if needed
 };
 
 export default UserTable;
