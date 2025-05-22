@@ -16,17 +16,17 @@ const AdminAside = () => {
   const pages = [
     {
       title: 'All Users',
-      link: '/admin/admin-applications',
+      link: '/admin/all-users',
       icon: <PiUsersThreeBold />,
     },
     {
       title: 'Applications',
-      link: '/admin/admin-application',
+      link: '/admin/admin-applications',
       icon: <FaWpforms />,
     },
     {
       title: 'Applicants',
-      link: '/admin/admin-applicationss',
+      link: '/admin/admin-applicants',
       icon: <FaUserCheck />, // or <MdPersonSearch />
     },
   ];

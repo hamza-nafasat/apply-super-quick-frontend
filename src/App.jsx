@@ -4,11 +4,14 @@ import CustomLoading from './components/shared/small/CustomLoading';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRedirect from './components/RoleRedirect';
 import AdminDashboard from './page/admin/dashboard';
-import AdminApplications from './page/admin/dashboard/admin-dashboard/AdminApplications';
+// import AdminApplications from './page/admin/dashboard/admin-dashboard/AdminAllUsers';
 import ClientMemberApplications from './page/client-member/dashboard/client-member-applications/ClientMemberApplications';
 import ClientMemberDashboard from './page/client-member/dashboard';
 import TeamMemberDashboard from './page/team-member/dashboard';
 import TeamMemberApplication from './page/team-member/dashboard/team-member-applications/TeamMemberApplication';
+import AdminAllUsers from './page/admin/dashboard/admin-dashboard/AdminAllUsers';
+import AdminApplications from './page/admin/dashboard/admin-applicantions/AdminApplications';
+import AdminApplicants from './page/admin/dashboard/admin-applicants/AdminApplicants';
 
 // Lazy components
 const Login = lazy(() => import('./page/auth/Login'));
@@ -29,7 +32,7 @@ const SuperBankApplications = lazy(
 
 const user = {
   isAuthenticated: true, // true or false
-  role: 'applicant', // try null, undefined, or wrong role to test role are (applicant, client, client_mbr,team_mbr, super_bank)
+  role: 'admin', // try null, undefined, or wrong role to test role are (applicant, client, client_mbr,team_mbr, super_bank)
 };
 
 function App() {
@@ -52,7 +55,9 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route path="all-users" element={<AdminAllUsers />} />
           <Route path="admin-applications" element={<AdminApplications />} />
+          <Route path="admin-applicants" element={<AdminApplicants />} />
         </Route>
         <Route
           path="/applicants/*"

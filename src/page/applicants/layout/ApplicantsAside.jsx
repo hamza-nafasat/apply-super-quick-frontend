@@ -16,7 +16,7 @@ const ApplicantsAside = () => {
   const pages = [
     {
       title: 'All Users',
-      link: '/applicants/applicants-applications',
+      link: '/applicants/applicants-applicationss',
       icon: <PiUsersThreeBold />,
     },
     {
@@ -48,7 +48,7 @@ const ApplicantsAside = () => {
           <img
             src={logo}
             alt="logo"
-            className={`block h-[31px] ${isNavOpen ? 'w-[100px]' : 'w-[31px]'} object-cover`}
+            className={`block h-[31px] ${isNavOpen ? 'h-[50px] w-[160px]' : 'h-[31px] w-[31px]'} object-cover`}
           />
         </div>
 
@@ -60,14 +60,14 @@ const ApplicantsAside = () => {
               <Link
                 key={i}
                 to={page.link}
-                className={`flex w-full min-w-fit cursor-pointer items-center p-2 transition-all duration-400 ${
+                className={`flex w-full min-w-fit cursor-pointer items-center p-2 text-nowrap transition-all duration-400 ${
                   isNavOpen ? 'gap-2' : 'gap-[0]'
-                } ${isActive ? 'bg-dark rounded-md text-white' : ''}`}
+                } ${isActive ? 'bg-medium rounded-md text-white' : ''}`}
               >
                 <div className={`text-[20px] ${isActive ? 'text-white' : 'text-[#526581]'}`}>{page.icon}</div>
                 <p
                   className={`navbar-title text-sm capitalize transition-opacity duration-500 md:text-base ${
-                    isActive ? 'text-white' : 'text-[#526581]'
+                    isActive ? 'font-bold text-white' : 'text-[#526581]'
                   } ${isNavOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}
                 >
                   {page.title}
