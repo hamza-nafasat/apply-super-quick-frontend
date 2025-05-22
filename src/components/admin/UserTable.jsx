@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DataTable from 'react-data-table-component';
 import { MoreVertical } from 'lucide-react';
@@ -7,7 +7,7 @@ import Modal from '../shared/Modal';
 import Button from '../shared/small/Button';
 import { USER_TYPES, USER_STATUS, INITIAL_USER_FORM, USER_TABLE_COLUMNS } from '@/constants/userConstants';
 import { validateUserForm, validatePassword } from '@/utils/userUtils';
-
+import { IoMdPersonAdd } from 'react-icons/io';
 const UserTable = () => {
   const [users, setUsers] = useState([
     {
@@ -52,6 +52,28 @@ const UserTable = () => {
   const [formData, setFormData] = useState(INITIAL_USER_FORM);
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const actionMenuRefs = useRef(new Map());
+
+  useEffect(() => {
+    const handleClickOutside = event => {
+      // Check if click is outside all open menus
+      const clickedOutsideAllMenus = Array.from(actionMenuRefs.current.values()).every(
+        ref => !ref.current?.contains(event.target)
+      );
+
+      if (clickedOutsideAllMenus) {
+        setActionMenu(null);
+      }
+    };
+
+    if (actionMenu !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [actionMenu]);
 
   const handleInputChange = useCallback(
     e => {
@@ -252,45 +274,53 @@ const UserTable = () => {
       ...USER_TABLE_COLUMNS,
       {
         name: 'Action',
-        cell: row => (
-          <div className="relative">
-            <button
-              onClick={() => setActionMenu(row.id)}
-              className="rounded p-1 hover:bg-gray-100"
-              aria-label="Actions"
-            >
-              <MoreVertical size={18} />
-            </button>
-            {actionMenu === row.id && (
-              <div className="absolute z-[9999] mt-2 w-40 rounded border bg-white shadow-lg">
-                <button
-                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                  onClick={() => {
-                    setEditModalData({ ...row });
-                    setActionMenu(null);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
-                  onClick={() => {
-                    setPasswordModalData({ id: row.id, password: '' });
-                    setActionMenu(null);
-                  }}
-                >
-                  Change Password
-                </button>
-                <button
-                  className="block w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
-                  onClick={() => handleDeleteUser(row.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        ),
+        cell: row => {
+          // Get or create ref for this row
+          if (!actionMenuRefs.current.has(row.id)) {
+            actionMenuRefs.current.set(row.id, React.createRef());
+          }
+          const rowRef = actionMenuRefs.current.get(row.id);
+
+          return (
+            <div className="relative" ref={rowRef}>
+              <button
+                onClick={() => setActionMenu(row.id)}
+                className="rounded p-1 hover:bg-gray-100"
+                aria-label="Actions"
+              >
+                <MoreVertical size={18} />
+              </button>
+              {actionMenu === row.id && (
+                <div className="fixed z-10 mt-2 w-40 rounded border bg-white shadow-lg">
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                    onClick={() => {
+                      setEditModalData({ ...row });
+                      setActionMenu(null);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                    onClick={() => {
+                      setPasswordModalData({ id: row.id, password: '' });
+                      setActionMenu(null);
+                    }}
+                  >
+                    Change Password
+                  </button>
+                  <button
+                    className="block w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
+                    onClick={() => handleDeleteUser(row.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        },
       },
     ],
     [actionMenu, handleDeleteUser]
@@ -299,9 +329,9 @@ const UserTable = () => {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">User Table</h2>
+        <h2 className="text-xl font-semibold text-[#323332]">User Table</h2>
         <div>
-          <Button label="Add User" onClick={() => setIsModalOpen(true)} disabled={isLoading} />
+          <Button icon={IoMdPersonAdd} label="Add User" onClick={() => setIsModalOpen(true)} disabled={isLoading} />
         </div>
       </div>
 

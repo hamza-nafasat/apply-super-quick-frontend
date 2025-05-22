@@ -16,12 +16,12 @@ const Modal = memo(({ title, children, onClose, onSave, isLoading = false }) => 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleBackdropClick}>
       <div className="w-[90%] max-w-md rounded-md bg-white p-6 shadow-lg">
-        <h3 className="mb-4 text-lg font-semibold">{title}</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[#323332]">{title}</h3>
         <div>{children}</div>
         <div className="mt-4 flex justify-end gap-2">
           <Button
             label="Cancel"
-            className="!border-gray-400 bg-gray-500 hover:!bg-gray-400"
+            className="!border-gray-500 !bg-gray-500 hover:!border-gray-400 hover:!bg-gray-400"
             onClick={onClose}
             disabled={isLoading}
           />
