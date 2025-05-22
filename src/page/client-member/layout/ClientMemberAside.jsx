@@ -3,9 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/images/logo.png';
 import ArrowBackIcon from '../../../assets/svgs/ArrowBackIcon';
 import { AiFillHome } from 'react-icons/ai';
-import { PiNotepadBold } from 'react-icons/pi';
+import { PiNotepadBold, PiUsersThreeBold } from 'react-icons/pi';
+import { FaUserCheck, FaWpforms } from 'react-icons/fa';
 
-const EmployeesAside = () => {
+const ClientMemberAside = () => {
   const navigate = useNavigate();
   const [isNavOpen, setIsNavOpen] = useState(true);
   const location = useLocation();
@@ -14,14 +15,19 @@ const EmployeesAside = () => {
 
   const pages = [
     {
-      title: 'Application',
-      link: '/employees/employees-applications',
-      icon: <PiNotepadBold />,
+      title: 'All Users',
+      link: '/admin/admin-applications',
+      icon: <PiUsersThreeBold />,
     },
     {
-      title: 'Application',
-      link: '/employees/employees-application',
-      icon: <AiFillHome />,
+      title: 'Applications',
+      link: '/client_mbr/client_mbr-applications',
+      icon: <FaWpforms />,
+    },
+    {
+      title: 'Applicants',
+      link: '/client_mbr/client_mbr-application',
+      icon: <FaUserCheck />,
     },
   ];
 
@@ -75,4 +81,4 @@ const EmployeesAside = () => {
   );
 };
 
-export default EmployeesAside;
+export default ClientMemberAside;

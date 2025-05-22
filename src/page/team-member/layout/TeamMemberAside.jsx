@@ -6,7 +6,7 @@ import { AiFillHome } from 'react-icons/ai';
 import { PiNotepadBold, PiUsersThreeBold } from 'react-icons/pi';
 import { FaUserCheck, FaWpforms } from 'react-icons/fa';
 
-const ClientAside = () => {
+const TeamMemberAside = () => {
   const navigate = useNavigate();
   const [isNavOpen, setIsNavOpen] = useState(true);
   const location = useLocation();
@@ -16,18 +16,18 @@ const ClientAside = () => {
   const pages = [
     {
       title: 'All Users',
+      link: '/admin/admin-applications',
       icon: <PiUsersThreeBold />,
-      link: '/client/client-applications',
     },
     {
-      title: 'Application',
-      link: '/client/client-application',
+      title: 'Applications',
+      link: '/team-member/team-member-applications',
       icon: <FaWpforms />,
     },
     {
       title: 'Applicants',
-      link: '/admin/admin-applicationss',
-      icon: <FaUserCheck />, // or <MdPersonSearch />
+      link: '/super-bank/super-bank-application',
+      icon: <FaUserCheck />,
     },
   ];
 
@@ -81,4 +81,4 @@ const ClientAside = () => {
   );
 };
 
-export default ClientAside;
+export default TeamMemberAside;

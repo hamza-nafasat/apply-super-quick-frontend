@@ -1,14 +1,13 @@
-// components/RoleRedirect.jsx
 import { Navigate } from 'react-router-dom';
 
 const roleRouteMap = {
   admin: '/admin/admin-applications',
   applicant: '/applicants/applicants-applications',
   client: '/client/client-applications',
-  employee: '/employees/employees-applications',
-  superbank: '/super-bank/super-bank-applications',
+  client_mbr: '/client_mbr/client_mbr-applications',
+  team_mbr: '/team-mbr/team-mbr-applications',
+  super_bank: '/super-bank/super-bank-applications',
 };
-
 const RoleRedirect = ({ user }) => {
   if (!user?.isAuthenticated || !user.role || !roleRouteMap[user.role]) {
     return <Navigate to="/" replace />;
@@ -17,3 +16,9 @@ const RoleRedirect = ({ user }) => {
   return <Navigate to={roleRouteMap[user.role]} replace />;
 };
 export default RoleRedirect;
+// admin
+// applicant
+// client
+// client-mbr
+// team-mbr
+// super-bank

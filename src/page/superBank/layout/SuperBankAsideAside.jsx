@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/images/logo.png';
 import ArrowBackIcon from '../../../assets/svgs/ArrowBackIcon';
 import { AiFillHome } from 'react-icons/ai';
-import { PiNotepadBold } from 'react-icons/pi';
+import { PiNotepadBold, PiUsersThreeBold } from 'react-icons/pi';
+import { FaUserCheck, FaWpforms } from 'react-icons/fa';
 
 const SuperBankAside = () => {
   const navigate = useNavigate();
@@ -14,14 +15,19 @@ const SuperBankAside = () => {
 
   const pages = [
     {
-      title: 'Application',
-      link: '/super-bank/super-bank-applications',
-      icon: <PiNotepadBold />,
+      title: 'All Users',
+      link: '/admin/admin-applications',
+      icon: <PiUsersThreeBold />,
     },
     {
-      title: 'Application',
+      title: 'Applications',
+      link: '/super-bank/super-bank-applications',
+      icon: <FaWpforms />,
+    },
+    {
+      title: 'Applicants',
       link: '/super-bank/super-bank-application',
-      icon: <AiFillHome />,
+      icon: <FaUserCheck />,
     },
   ];
 

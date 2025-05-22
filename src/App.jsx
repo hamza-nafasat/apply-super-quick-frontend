@@ -5,6 +5,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RoleRedirect from './components/RoleRedirect';
 import AdminDashboard from './page/admin/dashboard';
 import AdminApplications from './page/admin/dashboard/admin-dashboard/AdminApplications';
+import ClientMemberApplications from './page/client-member/dashboard/client-member-applications/ClientMemberApplications';
+import ClientMemberDashboard from './page/client-member/dashboard';
+import TeamMemberDashboard from './page/team-member/dashboard';
+import TeamMemberApplication from './page/team-member/dashboard/team-member-applications/TeamMemberApplication';
 
 // Lazy components
 const Login = lazy(() => import('./page/auth/Login'));
@@ -18,11 +22,6 @@ const ApplicantsApplications = lazy(
 const ClientDashboard = lazy(() => import('./page/client/dashboard'));
 const ClientApplications = lazy(() => import('./page/client/dashboard/client-applications/ClientApplications'));
 
-const EmployeeDashboard = lazy(() => import('./page/employees/dashboard'));
-const EmployeesApplications = lazy(
-  () => import('./page/employees/dashboard/employees-applications/EmployeesApplications')
-);
-
 const SuperBankDashboard = lazy(() => import('./page/superBank/dashboard'));
 const SuperBankApplications = lazy(
   () => import('./page/superBank/dashboard/super-Bank-applications/SuperBankApplications')
@@ -30,7 +29,7 @@ const SuperBankApplications = lazy(
 
 const user = {
   isAuthenticated: true, // true or false
-  role: 'admin', // try null, undefined, or wrong role to test role are (applicant, client, employee, superbank)
+  role: 'applicant', // try null, undefined, or wrong role to test role are (applicant, client, client_mbr,team_mbr, super_bank)
 };
 
 function App() {
@@ -78,20 +77,30 @@ function App() {
         </Route>
 
         <Route
-          path="/employees/*"
+          path="/client_mbr/*"
           element={
-            <ProtectedRoute user={user} role="employee">
-              <EmployeeDashboard />
+            <ProtectedRoute user={user} role="client_mbr">
+              <ClientMemberDashboard />
             </ProtectedRoute>
           }
         >
-          <Route path="employees-applications" element={<EmployeesApplications />} />
+          <Route path="client_mbr-applications" element={<ClientMemberApplications />} />
+        </Route>
+        <Route
+          path="/team-mbr/*"
+          element={
+            <ProtectedRoute user={user} role="team_mbr">
+              <TeamMemberDashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="team-mbr-applications" element={<TeamMemberApplication />} />
         </Route>
 
         <Route
           path="/super-bank/*"
           element={
-            <ProtectedRoute user={user} role="superbank">
+            <ProtectedRoute user={user} role="super_bank">
               <SuperBankDashboard />
             </ProtectedRoute>
           }

@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/images/logo.png';
 import ArrowBackIcon from '../../../assets/svgs/ArrowBackIcon';
 import { AiFillHome } from 'react-icons/ai';
-import { PiNotepadBold } from 'react-icons/pi';
+import { PiNotepadBold, PiUsersThreeBold } from 'react-icons/pi';
+import { FaUserCheck, FaWpforms } from 'react-icons/fa';
 
 const ApplicantsAside = () => {
   const navigate = useNavigate();
@@ -14,14 +15,19 @@ const ApplicantsAside = () => {
 
   const pages = [
     {
-      title: 'Application',
+      title: 'All Users',
       link: '/applicants/applicants-applications',
-      icon: <PiNotepadBold />,
+      icon: <PiUsersThreeBold />,
     },
     {
-      title: 'Application',
+      title: 'Applications',
+      link: '/applicants/applicants-applications',
+      icon: <FaWpforms />,
+    },
+    {
+      title: 'Applicants',
       link: '/applicants/applicants-application',
-      icon: <AiFillHome />,
+      icon: <FaUserCheck />,
     },
   ];
 

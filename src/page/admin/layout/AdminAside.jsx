@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { PiUsersThreeBold } from 'react-icons/pi';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/images/logo.png';
 import ArrowBackIcon from '../../../assets/svgs/ArrowBackIcon';
-import { AiFillHome } from 'react-icons/ai';
-import { PiNotepadBold } from 'react-icons/pi';
+// import { PiUsersThreeBold } from 'react-icons/pi';
+import { FaUserCheck, FaWpforms } from 'react-icons/fa';
+// or
 
 const AdminAside = () => {
   const navigate = useNavigate();
@@ -11,17 +13,21 @@ const AdminAside = () => {
   const location = useLocation();
 
   const handleNavOpen = () => setIsNavOpen(!isNavOpen);
-
   const pages = [
     {
-      title: 'Application',
+      title: 'All Users',
       link: '/admin/admin-applications',
-      icon: <PiNotepadBold />,
+      icon: <PiUsersThreeBold />,
     },
     {
-      title: 'Application',
+      title: 'Applications',
       link: '/admin/admin-application',
-      icon: <AiFillHome />,
+      icon: <FaWpforms />,
+    },
+    {
+      title: 'Applicants',
+      link: '/admin/admin-applicationss',
+      icon: <FaUserCheck />, // or <MdPersonSearch />
     },
   ];
 
@@ -54,7 +60,7 @@ const AdminAside = () => {
               <Link
                 key={i}
                 to={page.link}
-                className={`flex w-full min-w-fit cursor-pointer items-center p-3 transition-all duration-400 ${
+                className={`flex w-full min-w-fit cursor-pointer items-center p-2 text-nowrap transition-all duration-400 ${
                   isNavOpen ? 'gap-2' : 'gap-[0]'
                 } ${isActive ? 'bg-medium rounded-md text-white' : ''}`}
               >
