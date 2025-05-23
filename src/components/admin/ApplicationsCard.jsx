@@ -29,9 +29,9 @@ const bankForms = [
       'Employer Name',
       'Annual Income',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Loan Application Form',
@@ -52,31 +52,31 @@ const bankForms = [
       'Collateral Details',
       'Consent to Credit Check',
     ],
-      status: 'Draft',
-      createdAt: '2024-05-20T14:30:00Z',
-      totalApplicants: 17,
-    },
-    //   {
-    //     formType: 'Debit/Credit Card Application Form',
-    //     fields: [
-    //       'Full Name',
-    //       'DOB',
-    //       'PAN Number',
-    //       'Contact Details',
-    //       'Bank Account Number',
-    //       'Branch Name',
-    //       'Card Type',
-    //       'Credit Limit',
-    //       'Occupation',
-    //       'Monthly Income',
-    //       'Agreement to Terms',
-    //     ],
-    //     status: 'Inactive',
-    //     createdAt: '2024-04-15T09:00:00Z',
-    //     totalApplicants: 5,
-    //   },
-    {
-      formType: 'Cheque Book Request ',
+    status: 'Draft',
+    createdAt: '2024-05-20T14:30:00Z',
+    totalApplicants: 17,
+  },
+  //   {
+  //     formType: 'Debit/Credit Card Application Form',
+  //     fields: [
+  //       'Full Name',
+  //       'DOB',
+  //       'PAN Number',
+  //       'Contact Details',
+  //       'Bank Account Number',
+  //       'Branch Name',
+  //       'Card Type',
+  //       'Credit Limit',
+  //       'Occupation',
+  //       'Monthly Income',
+  //       'Agreement to Terms',
+  //     ],
+  //     status: 'Inactive',
+  //     createdAt: '2024-04-15T09:00:00Z',
+  //     totalApplicants: 5,
+  //   },
+  {
+    formType: 'Cheque Book Request ',
     fields: [
       'Account Holder Name',
       'Account Number',
@@ -85,9 +85,9 @@ const bankForms = [
       'Leaves per Book',
       'Signature',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'KYC Update Form',
@@ -102,12 +102,12 @@ const bankForms = [
       'Address Proof',
       'Identity Proof',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
-      formType: 'Fixed Deposit Opening ',
+    formType: 'Fixed Deposit Opening ',
     fields: [
       'Full Name',
       'Linked Account Number',
@@ -121,12 +121,12 @@ const bankForms = [
       'Nominee Name',
       'Nominee Relationship',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
-      formType: 'Recurring Deposit ',
+    formType: 'Recurring Deposit ',
     fields: [
       'Full Name',
       'Account Number',
@@ -136,12 +136,12 @@ const bankForms = [
       'Debit Account',
       'Nominee Name',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
-      formType: 'ATM Card Block Request ',
+    formType: 'ATM Card Block Request ',
     fields: [
       'Account Holder Name',
       'Account Number',
@@ -151,9 +151,9 @@ const bankForms = [
       'Block Instruction',
       'Signature',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Change of Address Form',
@@ -166,9 +166,9 @@ const bankForms = [
       'Document Number',
       'Signature',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Standing Instruction Form',
@@ -182,9 +182,9 @@ const bankForms = [
       'Purpose',
       'End Date or Ongoing',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Internet Banking Application Form',
@@ -197,16 +197,16 @@ const bankForms = [
       'Linked Accounts',
       'Agreement to Terms',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Mobile Banking Application Form',
     fields: ['Account Number', 'Full Name', 'Mobile Number', 'Device Type', 'App Permissions', 'Agreement to Terms'],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
   {
     formType: 'Bank Guarantee / Letter of Credit Application',
@@ -222,9 +222,9 @@ const bankForms = [
       'Collateral Type',
       'Declaration Agreement',
     ],
-      status: 'Active',
-      createdAt: '2024-06-01T10:00:00Z',
-      totalApplicants: 42,
+    status: 'Active',
+    createdAt: '2024-06-01T10:00:00Z',
+    totalApplicants: 42,
   },
 ];
 
@@ -264,14 +264,14 @@ export default function ApplicationsCard() {
   }
 
   return (
-    <div className='bg-white p-5 rounded-md shadow'>
+    <div className="rounded-md bg-white p-5 shadow">
       {/* Heading */}
       <h2 className="mb-2 text-2xl font-bold text-gray-800">Applications</h2>
       {/* Filter Bar */}
-      <div className="mb-6 rounded-xl  p-  mt-6">
+      <div className="p- mt-6 mb-6 rounded-xl">
         {/* Client Search - full width with icon */}
-        <div className="mb-4 relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+        <div className="relative mb-4">
+          <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -279,7 +279,7 @@ export default function ApplicationsCard() {
           </span>
           <input
             type="text"
-            className="w-full rounded border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-medium focus:outline-none"
+            className="focus:border-medium w-full rounded border border-gray-300 py-2 pr-3 pl-10 text-sm focus:outline-none"
             placeholder="Search by client type..."
             value={clientQuery}
             onChange={e => setClientQuery(e.target.value)}
@@ -288,42 +288,44 @@ export default function ApplicationsCard() {
         {/* Other filters in a row */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
           {/* Name */}
-          <div className="flex-1 min-w-[180px]">
+          <div className="min-w-[180px] flex-1">
             <label className="mb-1 block text-sm font-semibold text-gray-700">Search by Name</label>
             <input
               type="text"
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-medium focus:outline-none"
+              className="focus:border-medium w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
               placeholder="Enter name to search..."
               value={nameQuery}
               onChange={e => setNameQuery(e.target.value)}
             />
           </div>
           {/* Status */}
-          <div className="flex-1 min-w-[180px]">
+          <div className="min-w-[180px] flex-1">
             <label className="mb-1 block text-sm font-semibold text-gray-700">Status</label>
             <select
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-medium focus:outline-none"
+              className="focus:border-medium w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value)}
             >
               {statusOptions.map(opt => (
-                <option key={opt} value={opt}>{opt === 'All' ? 'All Statuses' : opt}</option>
+                <option key={opt} value={opt}>
+                  {opt === 'All' ? 'All Statuses' : opt}
+                </option>
               ))}
             </select>
           </div>
           {/* Date Range */}
-          <div className="flex-1 min-w-[220px]">
+          <div className="min-w-[220px] flex-1">
             <label className="mb-1 block text-sm font-semibold text-gray-700">Date Range</label>
             <div className="flex gap-2">
               <input
                 type="date"
-                className="w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:border-medium focus:outline-none"
+                className="focus:border-medium w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
                 value={dateFrom}
                 onChange={e => setDateFrom(e.target.value)}
               />
               <input
                 type="date"
-                className="w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:border-medium focus:outline-none"
+                className="focus:border-medium w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
                 value={dateTo}
                 onChange={e => setDateTo(e.target.value)}
               />
@@ -336,21 +338,19 @@ export default function ApplicationsCard() {
         {filteredForms.map((form, index) => (
           <div
             key={index}
-            className="relative flex min-w-0 flex-col rounded-2xl border border-2 bg-white p-3 shadow-sm transition duration-300 hover:shadow-md sm:p-4 md:p-6"
+            className="relative flex min-w-0 flex-col rounded-md border bg-white p-3 shadow-md transition duration-300 hover:shadow-md sm:p-4 md:p-6"
           >
             {/* Menu icon */}
-            <div className="absolute top-3 right-3 cursor-pointer sm:top-4 sm:right-4">
-              {/* <CiMenuKebab /> */}
-            </div>
+            <div className="absolute top-3 right-3 cursor-pointer sm:top-4 sm:right-4">{/* <CiMenuKebab /> */}</div>
             <div className="flex items-start gap-2 md:gap-4">
               {/* <CardIcon /> */}
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <h2 className="text-base leading-tight font-bold break-words text-gray-700 sm:text-lg md:text-2xl">
                     {form.formType}
                   </h2>
                   <span
-                    className={`rounded-full px-2 py-1 text-xs font-semibold md:text-sm ${form.status === 'Active' ? 'bg-green-100 text-green-700' : form.status === 'Draft' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}
+                    className={`rounded-full px-4 py-2 text-xs font-semibold md:text-sm ${form.status === 'Active' ? 'bg-green-100 text-green-700' : form.status === 'Draft' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}
                   >
                     {form.status}
                   </span>
@@ -399,8 +399,8 @@ export default function ApplicationsCard() {
                 Edit Structure
               </button>
             </div>
-        </div>
-      ))}
+          </div>
+        ))}
       </div>
     </div>
   );
