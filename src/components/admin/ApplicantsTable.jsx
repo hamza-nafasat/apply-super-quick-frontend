@@ -52,7 +52,7 @@ const APPLICANT_TABLE_COLUMNS = [
     sortable: true,
     cell: row => (
       <span
-        className={`w-[90px] rounded-sm px-[10px] py-[3px] text-center font-bold capitalize ${
+        className={`w-[100px] rounded-sm px-[10px] py-[3px] text-center font-bold capitalize ${
           row.status === APPLICANT_STATUS.APPROVED ? 'bg-[#34C7591A] text-[#34C759]' : ''
         } ${row.status === APPLICANT_STATUS.REJECTED ? 'bg-[#FF3B301A] text-[#FF3B30]' : ''} ${
           row.status === APPLICANT_STATUS.PENDING ? 'bg-yellow-100 text-yellow-800' : ''

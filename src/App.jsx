@@ -49,7 +49,7 @@ function App() {
         {user?.isAuthenticated && <Route path="/otp" element={<RoleRedirect user={user} />} />}
 
         <Route
-          path="/admin/*"
+          path="/*"
           element={
             <ProtectedRoute user={user} role="admin">
               <AdminDashboard />

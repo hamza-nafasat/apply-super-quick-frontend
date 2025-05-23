@@ -5,7 +5,7 @@ import logo from '../../../assets/images/logo.png';
 import ArrowBackIcon from '../../../assets/svgs/ArrowBackIcon';
 // import { PiUsersThreeBold } from 'react-icons/pi';
 import { FaUserCheck, FaWpforms } from 'react-icons/fa';
-// or
+import { FaUsersGear } from 'react-icons/fa6';
 
 const AdminAside = () => {
   const navigate = useNavigate();
@@ -15,23 +15,23 @@ const AdminAside = () => {
   const handleNavOpen = () => setIsNavOpen(!isNavOpen);
   const pages = [
     {
-      title: 'All Rolls',
-      link: '/admin/all-roles',
-      icon: <PiUsersThreeBold />,
+      title: 'All Role',
+      link: '/all-roles',
+      icon: <FaUsersGear />,
     },
     {
       title: 'All Users',
-      link: '/admin/all-users',
+      link: '/all-users',
       icon: <PiUsersThreeBold />,
     },
     {
       title: 'Applications',
-      link: '/admin/admin-applications',
+      link: '/admin-applications',
       icon: <FaWpforms />,
     },
     {
       title: 'Applicants',
-      link: '/admin/admin-applicants',
+      link: '/admin-applicants',
       icon: <FaUserCheck />, // or <MdPersonSearch />
     },
   ];
