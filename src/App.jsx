@@ -10,7 +10,7 @@ import ClientMemberDashboard from './page/client-member/dashboard';
 import TeamMemberDashboard from './page/team-member/dashboard';
 import TeamMemberApplication from './page/team-member/dashboard/team-member-applications/TeamMemberApplication';
 import AdminAllUsers from './page/admin/dashboard/admin-dashboard/AdminAllUsers';
-import AdminApplications from './page/admin/dashboard/admin-applicantions/AdminApplications';
+import AdminApplications from './page/admin/dashboard/admin-applications/AdminApplications';
 import AdminApplicants from './page/admin/dashboard/admin-applicants/AdminApplicants';
 import AllRoles from './page/admin/dashboard/role/AllRoles';
 
