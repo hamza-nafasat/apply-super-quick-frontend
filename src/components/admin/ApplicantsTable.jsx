@@ -296,6 +296,7 @@ const ApplicantsTable = ({ applicants, isLoading, onView, onDelete, filters, onF
           </div>
         </div>
       </div>
+
       <div className="w-full overflow-x-auto">
         <DataTable
           className="w-[1000px]"
