@@ -32,7 +32,7 @@ const AdminAside = () => {
     {
       title: 'Applicants',
       link: '/admin-applicants',
-      icon: <FaUserCheck />, // or <MdPersonSearch />
+      icon: <FaUserCheck />,
     },
   ];
 
