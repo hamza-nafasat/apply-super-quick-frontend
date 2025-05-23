@@ -15,6 +15,11 @@ const AdminAside = () => {
   const handleNavOpen = () => setIsNavOpen(!isNavOpen);
   const pages = [
     {
+      title: 'All Rolls',
+      link: '/admin/all-roles',
+      icon: <PiUsersThreeBold />,
+    },
+    {
       title: 'All Users',
       link: '/admin/all-users',
       icon: <PiUsersThreeBold />,

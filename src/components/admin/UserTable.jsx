@@ -4,10 +4,27 @@ import DataTable from 'react-data-table-component';
 import { MoreVertical } from 'lucide-react';
 import { tableStyles } from '@/data/data';
 import Modal from '../shared/Modal';
+import ConfirmationModal from '../shared/ConfirmationModal';
 import Button from '../shared/small/Button';
 import { USER_TYPES, USER_STATUS, INITIAL_USER_FORM, USER_TABLE_COLUMNS } from '@/constants/userConstants';
 import { validateUserForm, validatePassword } from '@/utils/userUtils';
 import { IoMdPersonAdd } from 'react-icons/io';
+import { FaUserShield } from 'react-icons/fa';
+
+// Define role access permissions
+const ROLE_PERMISSIONS = [
+  { id: 'create_user', label: 'Create User' },
+  { id: 'edit_user', label: 'Edit User' },
+  { id: 'delete_user', label: 'Delete User' },
+  { id: 'view_transactions', label: 'View Transactions' },
+  { id: 'approve_transactions', label: 'Approve Transactions' },
+  { id: 'manage_accounts', label: 'Manage Accounts' },
+  { id: 'view_reports', label: 'View Reports' },
+  { id: 'manage_roles', label: 'Manage Roles' },
+  { id: 'view_audit_logs', label: 'View Audit Logs' },
+  { id: 'manage_settings', label: 'Manage Settings' },
+];
+
 const UserTable = () => {
   const [users, setUsers] = useState([
     {
@@ -53,6 +70,12 @@ const UserTable = () => {
   const [formErrors, setFormErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const actionMenuRefs = useRef(new Map());
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [roleData, setRoleData] = useState({
+    roleName: '',
+    permissions: {},
+  });
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -177,20 +200,37 @@ const UserTable = () => {
     }
   }, [passwordModalData]);
 
-  const handleDeleteUser = useCallback(async id => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
-      return;
-    }
+  const handleDeleteUser = useCallback(async () => {
+    if (!deleteConfirmation) return;
 
     setIsLoading(true);
     try {
-      setUsers(prev => prev.filter(user => user.id !== id));
+      setUsers(prev => prev.filter(user => user.id !== deleteConfirmation.id));
       setActionMenu(null);
+      setDeleteConfirmation(null);
     } catch (error) {
       console.error('Error deleting user:', error);
-      // Handle error appropriately
     } finally {
       setIsLoading(false);
+    }
+  }, [deleteConfirmation]);
+
+  const handleRoleInputChange = useCallback(e => {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setRoleData(prev => ({
+        ...prev,
+        permissions: {
+          ...prev.permissions,
+          [name]: checked,
+        },
+      }));
+      console.log('Permission changed:', name, checked);
+    } else {
+      setRoleData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   }, []);
 
@@ -312,7 +352,10 @@ const UserTable = () => {
                   </button>
                   <button
                     className="block w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
-                    onClick={() => handleDeleteUser(row.id)}
+                    onClick={() => {
+                      setDeleteConfirmation(row);
+                      setActionMenu(null);
+                    }}
                   >
                     Delete
                   </button>
@@ -330,7 +373,7 @@ const UserTable = () => {
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold text-[#323332]">User Table</h2>
-        <div>
+        <div className="flex gap-2">
           <Button icon={IoMdPersonAdd} label="Add User" onClick={() => setIsModalOpen(true)} disabled={isLoading} />
         </div>
       </div>
@@ -348,6 +391,7 @@ const UserTable = () => {
       {/* Add User Modal */}
       {isModalOpen && (
         <Modal
+          saveButtonText="Create User"
           title="Add User"
           onClose={() => {
             setIsModalOpen(false);
@@ -377,6 +421,7 @@ const UserTable = () => {
       {/* Edit Modal */}
       {editModalData && (
         <Modal
+          saveButtonText="Edit"
           title="Edit User"
           onClose={() => {
             setEditModalData(null);
@@ -457,6 +502,19 @@ const UserTable = () => {
           )}
         </Modal>
       )}
+
+      {/* Add Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deleteConfirmation}
+        onClose={() => setDeleteConfirmation(null)}
+        onConfirm={handleDeleteUser}
+        title="Delete User"
+        message={`Are you sure you want to delete the user "${deleteConfirmation?.name}"? This action cannot be undone.`}
+        isLoading={isLoading}
+        confirmButtonText="Delete User"
+        confirmButtonClassName="bg-red-500 border-none hover:bg-red-600 text-white"
+        cancelButtonText="Keep User"
+      />
     </div>
   );
 };

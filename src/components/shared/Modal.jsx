@@ -1,36 +1,63 @@
 import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Button from './small/Button';
+// import Button from './Button';
+import { IoCloseSharp } from 'react-icons/io5';
 
-const Modal = memo(({ title, children, onClose, onSave, isLoading = false }) => {
-  const handleBackdropClick = useCallback(
-    e => {
-      // Only close if clicking the backdrop itself, not its children
-      if (e.target === e.currentTarget) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
+const Modal = memo(
+  ({
+    title,
+    children,
+    onClose,
+    onSave,
+    isLoading = false,
+    saveButtonText = 'Save',
+    saveButtonClassName = '',
+    cancelButtonClassName = '!bg-gray-500 !border-gray-500 hover:!bg-gray-400 hover:!border-gray-400',
+    cancelButtonText = 'Cancel',
+    hideSaveButton = false,
+  }) => {
+    const handleBackdropClick = useCallback(
+      e => {
+        // Only close if clicking the backdrop itself, not its children
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      },
+      [onClose]
+    );
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleBackdropClick}>
-      <div className="w-[90%] max-w-md rounded-md bg-white p-6 shadow-lg">
-        <h3 className="mb-4 text-lg font-semibold text-[#323332]">{title}</h3>
-        <div>{children}</div>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button
-            label="Cancel"
-            className="!border-gray-500 !bg-gray-500 hover:!border-gray-400 hover:!bg-gray-400"
-            onClick={onClose}
-            disabled={isLoading}
-          />
-          <Button label={isLoading ? 'Saving...' : 'Save'} onClick={onSave} disabled={isLoading} />
+    return (
+      <div
+        className="fixed inset-0 z-50 flex h-full items-center justify-center overflow-auto bg-black/50"
+        onClick={handleBackdropClick}
+      >
+        <div className="scroll-0 max-h-[80%] w-[90%] max-w-md overflow-auto rounded-md bg-white p-6 shadow-lg">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-500" disabled={isLoading}>
+              <IoCloseSharp />
+            </button>
+          </div>
+
+          <div className="mb-6">{children}</div>
+
+          <div className="flex justify-end gap-2">
+            <Button label={cancelButtonText} onClick={onClose} className={cancelButtonClassName} disabled={isLoading} />
+            {!hideSaveButton && (
+              <Button
+                label={isLoading ? 'Loading...' : saveButtonText}
+                onClick={onSave}
+                className={saveButtonClassName}
+                disabled={isLoading}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 Modal.propTypes = {
   title: PropTypes.string.isRequired,
@@ -38,6 +65,11 @@ Modal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
+  saveButtonText: PropTypes.string,
+  saveButtonClassName: PropTypes.string,
+  cancelButtonClassName: PropTypes.string,
+  cancelButtonText: PropTypes.string,
+  hideSaveButton: PropTypes.bool,
 };
 
 Modal.displayName = 'Modal';

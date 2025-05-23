@@ -12,6 +12,7 @@ import TeamMemberApplication from './page/team-member/dashboard/team-member-appl
 import AdminAllUsers from './page/admin/dashboard/admin-dashboard/AdminAllUsers';
 import AdminApplications from './page/admin/dashboard/admin-applicantions/AdminApplications';
 import AdminApplicants from './page/admin/dashboard/admin-applicants/AdminApplicants';
+import AllRoles from './page/admin/dashboard/role/AllRoles';
 
 // Lazy components
 const Login = lazy(() => import('./page/auth/Login'));
@@ -55,6 +56,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route path="all-roles" element={<AllRoles />} />
           <Route path="all-users" element={<AdminAllUsers />} />
           <Route path="admin-applications" element={<AdminApplications />} />
           <Route path="admin-applicants" element={<AdminApplicants />} />
