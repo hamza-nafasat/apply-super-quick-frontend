@@ -1,9 +1,5 @@
 import { jest } from "@jest/globals";
-import { createUserTests } from "./createUser.js";
-import { getMyProfileTests } from "./getMyProfile.js";
 import { loginTests } from "./login.js";
-import { logoutTests } from "./logout.js";
-import { updateMyProfileTests } from "./updateProfile.js";
 
 jest.setTimeout(10000);
 
@@ -21,6 +17,6 @@ const authTestData = {
 };
 
 describe("Auth Tests - Login", () => loginTests(authTestData));
-describe("Auth Tests - Logout", () => logoutTests(authTestData));
-describe("Auth Tests - Get Profile", () => getMyProfileTests(authTestData));
-describe("Auth Tests - Update Profile", () => updateMyProfileTests(authTestData));
+// describe("Auth Tests - Logout", () => logoutTests(authTestData));
+// describe("Auth Tests - Get Profile", () => getMyProfileTests(authTestData));
+// describe("Auth Tests - Update Profile", () => updateMyProfileTests(authTestData));

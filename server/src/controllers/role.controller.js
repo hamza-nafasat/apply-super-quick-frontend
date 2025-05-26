@@ -10,6 +10,7 @@ const createRole = asyncHandler(async (req, res, next) => {
   if (!req?.body) return next(new CustomError(400, "Please Provide all fields"));
   let { name, permissions } = req.body;
   if (!name || !permissions?.length) return next(new CustomError(400, "Please Provide role name and permissions"));
+  if (!Array.isArray(permissions)) return next(new CustomError(400, "Permissions should be an array"));
   // remove dublicate
   permissions = [...new Set(permissions.map((permission) => String(permission)))];
   permissions.forEach((permission) => {

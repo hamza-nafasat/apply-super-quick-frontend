@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
+import { asyncHandler } from "./asyncHandler.js";
+import { Auth } from "../models/auth.model.js";
+import { Role } from "../models/role.model.js";
+import { CustomError } from "../utils/customError.js";
 import { getEnv } from "../configs/config.js";
-import { addPermissionsIntoDB } from "../configs/permissions.js";
 
 // before we start testing testing
 const beforeTestFunction = async () => {
@@ -15,7 +18,6 @@ const beforeTestFunction = async () => {
       await mongoose.connection.dropDatabase();
       console.log(`BEFORE TEST :${res?.connection?.db?.databaseName} connected and  dropped successfully`);
     }
-    await addPermissionsIntoDB();
   } catch (error) {
     console.error("BEFORE TEST :Failed to complete before all func in testing:", error);
     process.exit(1);
@@ -36,4 +38,19 @@ const afterTestFunction = async () => {
   }
 };
 
-export { afterTestFunction, beforeTestFunction };
+const createUserWithOutAuthorizing = async ({ firstName, lastName, email, password, role }) => {
+  try {
+    if (!firstName || !lastName || !email || !password || !role) return false;
+    const [user, roleExist] = await Promise.all([Auth.findOne({ email }), Role.findOne({ name: role })]);
+    if (user?._id) return false;
+    if (!roleExist) return false;
+    const newUser = await Auth.create({ firstName, lastName, email, password, role: roleExist?._id });
+    if (!newUser) return false;
+    return true;
+  } catch (error) {
+    console.log("error while creating user in testing", error);
+    return false;
+  }
+};
+
+export { afterTestFunction, beforeTestFunction, createUserWithOutAuthorizing };
