@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import UserApplicationDetail from './UserApplicationDetail';
+import { GoChevronDown } from 'react-icons/go';
+import { CiSearch } from 'react-icons/ci';
 import MenuIcon from './../../assets/svgs/MenuIcon';
 import { CiMenuKebab } from 'react-icons/ci';
 
@@ -235,6 +237,7 @@ export default function ApplicationsCard() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [searchMode, setSearchMode] = useState('client');
 
   const handleCardClick = form => {
     setSelectedForm(form);
@@ -246,10 +249,13 @@ export default function ApplicationsCard() {
 
   // Filtering logic
   const filteredForms = bankForms.filter(form => {
-    // Search by client (for demo, match in formType)
-    const clientMatch = clientQuery === '' || form.formType.toLowerCase().includes(clientQuery.toLowerCase());
-    // Search by name (for demo, match in formType)
-    const nameMatch = nameQuery === '' || form.formType.toLowerCase().includes(nameQuery.toLowerCase());
+    // Search by client or name (for demo, match in formType)
+    const clientMatch =
+      searchMode === 'client'
+        ? clientQuery === '' || form.formType.toLowerCase().includes(clientQuery.toLowerCase())
+        : true;
+    const nameMatch =
+      searchMode === 'name' ? nameQuery === '' || form.formType.toLowerCase().includes(nameQuery.toLowerCase()) : true;
     // Status filter
     const statusMatch = statusFilter === 'All' || form.status === statusFilter;
     // Date range filter
@@ -265,80 +271,97 @@ export default function ApplicationsCard() {
 
   return (
     <div className="rounded-md bg-white p-5 shadow">
-      {/* Heading */}
-      <h2 className="mb-2 text-2xl font-bold text-gray-800">Applications</h2>
-      {/* Filter Bar */}
-      <div className="p- mt-6 mb-6 rounded-xl">
-        {/* Client Search - full width with icon */}
-        <div className="relative mb-4">
-          <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </span>
-          <input
-            type="text"
-            className="focus:border-medium w-full rounded border border-gray-300 py-2 pr-3 pl-10 text-sm focus:outline-none"
-            placeholder="Search by client type..."
-            value={clientQuery}
-            onChange={e => setClientQuery(e.target.value)}
-          />
+      {/* Header Section */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-[22px] font-medium text-[#1A1A1A]">Financial Services Application Platform</h1>
+          <p className="text-[14px] font-normal text-[#A7A7A7]">
+            Dynamic application forms with AI-assisted completion and automated data lookup
+          </p>
         </div>
-        {/* Other filters in a row */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
-          {/* Name */}
-          <div className="min-w-[180px] flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Search by Name</label>
-            <input
-              type="text"
-              className="focus:border-medium w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
-              placeholder="Enter name to search..."
-              value={nameQuery}
-              onChange={e => setNameQuery(e.target.value)}
-            />
-          </div>
-          {/* Status */}
-          <div className="min-w-[180px] flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Status</label>
-            <select
-              className="focus:border-medium w-full rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
-            >
-              {statusOptions.map(opt => (
-                <option key={opt} value={opt}>
-                  {opt === 'All' ? 'All Statuses' : opt}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Date Range */}
-          <div className="min-w-[220px] flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Date Range</label>
-            <div className="flex gap-2">
+        <div className="flex gap-6">
+          <button className="rounded-[4px] bg-[#A7A7A7] px-5 py-3.5 text-[16px] font-normal text-white">Help</button>
+          <button className="flex items-center rounded-[4px] bg-teal-600 px-5 py-3.5 text-[16px] font-normal text-white">
+            Create Form <GoChevronDown size={16} className="ml-[6px]" />
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      {/* <div className="">
+        <span className="block text-[12px] font-medium text-[#A7A7A7] uppercase tracking-wide mb-">Advanced Search</span>
+      </div> */}
+      <div className="mb-6 grid w-full grid-cols-1 items-end gap-[8px] md:grid-cols-12">
+        {/* Search Input with Toggle */}
+
+        <div className="w-full rounded-[4px] md:col-span-5">
+          <p className="text-[12px] font-medium text-[#A7A7A7]">ADVANCED SEARCH</p>
+          <div className="flex items-center rounded justify-between border border-[#F2F2F2] bg-white px-1 py-1">
+            <div className="flex items-center">
+              <CiSearch />
               <input
-                type="date"
-                className="focus:border-medium w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
-                value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
+                type="text"
+                className="border-none bg-white px-2 py-2 text-sm outline-none"
+                placeholder={searchMode === 'client' ? 'Search From' : 'Search Name'}
+                value={searchMode === 'client' ? clientQuery : nameQuery}
+                onChange={e =>
+                  searchMode === 'client' ? setClientQuery(e.target.value) : setNameQuery(e.target.value)
+                }
               />
-              <input
-                type="date"
-                className="focus:border-medium w-1/2 rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none"
-                value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
-              />
+            </div>
+            <div>
+              <button
+                className={`ml-2 rounded px-3 py-2 text-xs font-semibold ${searchMode === 'client' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                onClick={() => setSearchMode('client')}
+              >
+                BY CLIENT#
+              </button>
+              <button
+                className={`ml-1 rounded px-3 py-2 text-xs font-semibold ${searchMode === 'name' ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                onClick={() => setSearchMode('name')}
+              >
+                BY NAME#
+              </button>
             </div>
           </div>
         </div>
+        {/* Date Pickers */}
+        <div className="col-span-3 w-full">
+          <label className="mb-1 text-[12px] font-medium text-[#A7A7A7]">FROM</label>
+          <input
+            type="date"
+            className="w-full rounded border border-[#F2F2F2] px-2 py-3 text-sm text-[#969696]"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+          />
+        </div>
+        <div className="col-span-3 w-full">
+          <label className="mb-1 text-[12px] font-medium text-[#A7A7A7]">TO</label>
+          <input
+            type="date"
+            className="w-full rounded border border-[#F2F2F2] px-2 py-3 text-sm text-[#969696]"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+          />
+        </div>
+        {/* Search Button */}
+        <div className="col-span-1 w-full">
+          <button className="flex w-full items-center rounded bg-teal-600 px-3 py-[11px] text-white md:w-auto">
+            <svg className="mr-1 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            Search
+          </button>
+        </div>
       </div>
+
       {/* Cards */}
       <div className="p- sm:p- md:p- grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredForms.map((form, index) => (
           <div
             key={index}
-            className="relative flex min-w-0 flex-col rounded-md border bg-white p-3 shadow-md transition duration-300 hover:shadow-md sm:p-4 md:p-6"
+            className="relative flex min-w-0 flex-col rounded-[8px] border bg-white p-3 shadow-md transition duration-300 hover:shadow-md sm:p-4 md:p-6"
           >
             {/* Menu icon */}
             <div className="absolute top-3 right-3 cursor-pointer sm:top-4 sm:right-4">{/* <CiMenuKebab /> */}</div>
@@ -350,7 +373,7 @@ export default function ApplicationsCard() {
                     {form.formType}
                   </h2>
                   <span
-                    className={`rounded-full px-4 py-2 text-xs font-semibold md:text-sm ${form.status === 'Active' ? 'bg-green-100 text-green-700' : form.status === 'Draft' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}
+                    className={`rounded-[8px] px-4 py-2 text-xs font-semibold md:text-sm ${form.status === 'Active' ? 'bg-green-100 text-green-700' : form.status === 'Draft' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}
                   >
                     {form.status}
                   </span>
@@ -390,14 +413,14 @@ export default function ApplicationsCard() {
             </div>
             <div className="mt-3 flex w-full flex-col items-center justify-between gap-3 md:mt-6 md:flex-row md:gap-4">
               <button
-                className="bg-medium hover:bg-light w-full rounded px-5 py-2 font-semibold text-white shadow focus:outline-none md:w-auto"
+                className="bg-[#15A090] hover:bg-medium w-full rounded px-5 py-2 font-semibold text-white shadow focus:outline-none md:w-auto"
                 onClick={() => handleCardClick(form)}
               >
                 Start Application
               </button>
-              <button className="border-medium text-medium w-full rounded border bg-white px-5 py-2 font-semibold hover:bg-gray-50 focus:outline-none md:w-auto">
+              {/* <button className="border-medium text-medium w-full rounded border bg-white px-5 py-2 font-semibold hover:bg-gray-50 focus:outline-none md:w-auto">
                 Edit Structure
-              </button>
+              </button> */}
             </div>
           </div>
         ))}
