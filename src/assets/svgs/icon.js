@@ -4,4 +4,5 @@ import Applicants from './Applicants';
 import Application from './Application';
 import AllRoles from './AllRoles';
 import Applications from './Applications';
-export { ArrowBackIcon, AllUsers, Applicants, Application, AllRoles, Applications };
+import HeaderLogo from './UserApplicationForm/HeaderLogo';
+export { ArrowBackIcon, AllUsers, Applicants, Application, AllRoles, Applications, HeaderLogo };

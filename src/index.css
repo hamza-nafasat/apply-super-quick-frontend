@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 /* @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,200..1000;1,200..1000&family=Odor+Mean+Chey&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 @import 'tailwindcss';
 @import "tw-animate-css";
 
@@ -13,6 +14,10 @@
   --light: #72ffe7;
   --medium: #21ccb0;
   --dark: #066969;
+  --dark-gray: #1B1B1B;
+  --medium-gray: #576275;
+  --light-gray: #636363;
+  
   --aside-grad: linear-gradient(180deg, #039099 0%, rgba(197, 31, 255, 0.88) 111.68%);
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -47,11 +52,16 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --montserrat-font: 'Montserrat', sans-serif;
+  --roboto-font: 'Roboto', sans-serif;
+  --spanish-gray: #9A9A9A;
 }
 @theme {
   --color-light: var(--light);
   --color-medium: var(--medium);
   --color-dark: var(--dark);
+  --color-dark-gray: var(--dark-gray);
+  --color-medium-gray: var(--medium-gray);
+  --color-light-gray: var(--light-gray);
 }
 body {
   padding: 0;
@@ -230,4 +240,8 @@ body {
 
 .montserrat-font {
   font-family: var(--montserrat-font);
+}
+
+.roboto-font {
+  font-family: var(--roboto-font);
 }

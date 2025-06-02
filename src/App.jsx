@@ -13,6 +13,9 @@ import AdminAllUsers from './page/admin/dashboard/admin-dashboard/AdminAllUsers'
 import AdminApplications from './page/admin/dashboard/admin-applications/AdminApplications';
 import AdminApplicants from './page/admin/dashboard/admin-applicants/AdminApplicants';
 import AllRoles from './page/admin/dashboard/role/AllRoles';
+import ApplicationVerification from './page/admin/userApplicationForms/ApplicationVerification/ApplicationVerification';
+import UserApplicationForms from './page/admin/userApplicationForms';
+import CompanyInformation from './page/admin/userApplicationForms/CompanyInforation/CompanyInformation';
 
 // Lazy components
 const Login = lazy(() => import('./page/auth/Login'));
@@ -34,6 +37,10 @@ const SuperBankApplications = lazy(
 const user = {
   isAuthenticated: true, // true or false
   role: 'admin', // try null, undefined, or wrong role to test role are (applicant, client, client_mbr,team_mbr, super_bank)
+};
+const userForm = {
+  isAuthenticated: true, // true or false
+  role: 'form', // try null, undefined, or wrong role to test role are (applicant, client, client_mbr,team_mbr, super_bank)
 };
 
 function App() {
@@ -60,6 +67,18 @@ function App() {
           <Route path="all-users" element={<AdminAllUsers />} />
           <Route path="admin-applications" element={<AdminApplications />} />
           <Route path="admin-applicants" element={<AdminApplicants />} />
+        </Route>
+        <Route
+          path="/user-application-forms/*"
+          element={
+            <ProtectedRoute user={userForm} role="form">
+              <UserApplicationForms />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="application-verification" element={<ApplicationVerification />} />
+          <Route path="company-information" element={<CompanyInformation />} />
+          
         </Route>
         <Route
           path="/applicants/*"

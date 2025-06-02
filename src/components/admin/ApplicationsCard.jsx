@@ -2,233 +2,11 @@ import React, { useState } from 'react';
 import UserApplicationDetail from './UserApplicationDetail';
 import { GoChevronDown } from 'react-icons/go';
 import { CiSearch } from 'react-icons/ci';
+import { bankForms } from '../../data/data';
 import MenuIcon from './../../assets/svgs/MenuIcon';
 import { CiMenuKebab } from 'react-icons/ci';
 
 const statusOptions = ['All', 'Active', 'Draft', 'Inactive'];
-
-const bankForms = [
-  {
-    formType: 'Account Opening Form',
-    fields: [
-      'Full Name',
-      'Date of Birth',
-      'Gender',
-      'Nationality',
-      'Marital Status',
-      'Permanent Address',
-      'Current Address',
-      'Mobile Number',
-      'Email ID',
-      'PAN Card Number',
-      'Aadhaar Number',
-      'Passport/Driving License Number',
-      'Account Type',
-      'Mode of Operation',
-      'Initial Deposit Amount',
-      'Nominee Details',
-      'Occupation',
-      'Employer Name',
-      'Annual Income',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Loan Application Form',
-    fields: [
-      'Full Name',
-      'DOB',
-      'Contact Details',
-      'Residential Address',
-      'PAN/Aadhaar',
-      'Loan Type',
-      'Loan Amount',
-      'Loan Tenure',
-      'Loan Purpose',
-      'Occupation',
-      'Employer/Business',
-      'Monthly Income',
-      'Existing Loans',
-      'Collateral Details',
-      'Consent to Credit Check',
-    ],
-    status: 'Draft',
-    createdAt: '2024-05-20T14:30:00Z',
-    totalApplicants: 17,
-  },
-  //   {
-  //     formType: 'Debit/Credit Card Application Form',
-  //     fields: [
-  //       'Full Name',
-  //       'DOB',
-  //       'PAN Number',
-  //       'Contact Details',
-  //       'Bank Account Number',
-  //       'Branch Name',
-  //       'Card Type',
-  //       'Credit Limit',
-  //       'Occupation',
-  //       'Monthly Income',
-  //       'Agreement to Terms',
-  //     ],
-  //     status: 'Inactive',
-  //     createdAt: '2024-04-15T09:00:00Z',
-  //     totalApplicants: 5,
-  //   },
-  {
-    formType: 'Cheque Book Request ',
-    fields: [
-      'Account Holder Name',
-      'Account Number',
-      'Branch Name',
-      'Number of Cheque Books',
-      'Leaves per Book',
-      'Signature',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'KYC Update Form',
-    fields: [
-      'Full Name',
-      'Account Number',
-      'PAN Number',
-      'Aadhaar Number',
-      'New Address',
-      'New Phone',
-      'New Email',
-      'Address Proof',
-      'Identity Proof',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Fixed Deposit Opening ',
-    fields: [
-      'Full Name',
-      'Linked Account Number',
-      'PAN Number',
-      'Contact Details',
-      'Deposit Amount',
-      'Tenure',
-      'Interest Payout Option',
-      'Payment Mode',
-      'Maturity Instructions',
-      'Nominee Name',
-      'Nominee Relationship',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Recurring Deposit ',
-    fields: [
-      'Full Name',
-      'Account Number',
-      'Contact Details',
-      'Monthly Installment',
-      'Tenure',
-      'Debit Account',
-      'Nominee Name',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'ATM Card Block Request ',
-    fields: [
-      'Account Holder Name',
-      'Account Number',
-      'Mobile Number',
-      'ATM Card Number',
-      'Reason for Blocking',
-      'Block Instruction',
-      'Signature',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Change of Address Form',
-    fields: [
-      'Account Holder Name',
-      'Account Number',
-      'Old Address',
-      'New Address',
-      'Proof of New Address',
-      'Document Number',
-      'Signature',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Standing Instruction Form',
-    fields: [
-      'Full Name',
-      'Account Number',
-      'Start Date',
-      'Frequency',
-      'Amount',
-      'Payee Account Details',
-      'Purpose',
-      'End Date or Ongoing',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Internet Banking Application Form',
-    fields: [
-      'Full Name',
-      'Account Number',
-      'Mobile Number',
-      'Email ID',
-      'Access Type',
-      'Linked Accounts',
-      'Agreement to Terms',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Mobile Banking Application Form',
-    fields: ['Account Number', 'Full Name', 'Mobile Number', 'Device Type', 'App Permissions', 'Agreement to Terms'],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-  {
-    formType: 'Bank Guarantee / Letter of Credit Application',
-    fields: [
-      'Company Name',
-      'Contact Person',
-      'Address',
-      'PAN/GSTIN',
-      'Beneficiary Name',
-      'Guarantee Amount',
-      'Validity',
-      'Guarantee Type',
-      'Collateral Type',
-      'Declaration Agreement',
-    ],
-    status: 'Active',
-    createdAt: '2024-06-01T10:00:00Z',
-    totalApplicants: 42,
-  },
-];
 
 export default function ApplicationsCard() {
   const [selectedForm, setSelectedForm] = useState(null);
@@ -288,15 +66,12 @@ export default function ApplicationsCard() {
       </div>
 
       {/* Filter Bar */}
-      {/* <div className="">
-        <span className="block text-[12px] font-medium text-[#A7A7A7] uppercase tracking-wide mb-">Advanced Search</span>
-      </div> */}
       <div className="mb-6 grid w-full grid-cols-1 items-end gap-[8px] md:grid-cols-12">
         {/* Search Input with Toggle */}
 
         <div className="w-full rounded-[4px] md:col-span-5">
           <p className="text-[12px] font-medium text-[#A7A7A7]">ADVANCED SEARCH</p>
-          <div className="flex items-center rounded justify-between border border-[#F2F2F2] bg-white px-1 py-1">
+          <div className="flex items-center justify-between rounded border border-[#F2F2F2] bg-white px-1 py-1">
             <div className="flex items-center">
               <CiSearch />
               <input
@@ -413,7 +188,7 @@ export default function ApplicationsCard() {
             </div>
             <div className="mt-3 flex w-full flex-col items-center justify-between gap-3 md:mt-6 md:flex-row md:gap-4">
               <button
-                className="bg-[#15A090] hover:bg-medium w-full rounded px-5 py-2 font-semibold text-white shadow focus:outline-none md:w-auto"
+                className="hover:bg-medium w-full rounded bg-[#15A090] px-5 py-2 font-semibold text-white shadow focus:outline-none md:w-auto"
                 onClick={() => handleCardClick(form)}
               >
                 Start Application
