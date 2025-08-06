@@ -23,6 +23,7 @@ function CustomSection({
   isLoading,
   formRefetch,
   _id,
+  title,
 }) {
   const [form, setForm] = useState({});
   const [isAllRequiredFieldsFilled, setIsAllRequiredFieldsFilled] = useState(false);
@@ -127,14 +128,14 @@ function CustomSection({
       <div className="flex justify-end gap-4 p-4">
         <div className="mt-8 flex justify-end gap-5">
           {currentStep > 0 && <Button variant="secondary" label={'Previous'} onClick={handlePrevious} />}
-          {currentStep < totalSteps - 1 ? (
-            <Button label={'Next'} onClick={() => handleNext({ data: form, name })} />
+          {currentStep < totalSteps - 2 ? (
+            <Button label={'Next'} onClick={() => handleNext({ data: form, name: title })} />
           ) : (
             <Button
               disabled={isLoading || !isAllRequiredFieldsFilled}
               className={`${isLoading || (!isAllRequiredFieldsFilled && 'pinter-events-none cursor-not-allowed opacity-50')}`}
               label={!isAllRequiredFieldsFilled ? 'Some required fields are missing' : 'Submit'}
-              onClick={() => handleSubmit({ data: form, name })}
+              onClick={() => handleSubmit({ data: form, name: title })}
             />
           )}
         </div>
