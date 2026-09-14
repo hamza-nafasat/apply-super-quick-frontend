@@ -1922,7 +1922,7 @@ const GlobalBrandingPage = ({ brandingId }) => {
                 return (L + 0.05) / 0.05 > 1.05 / (L + 0.05) ? "#000000" : "#ffffff";
               };
               const launchText = contrastColor(previewLaunch);
-              const headerText = contrastColor(previewHeader);
+              const previewHeaderText = contrastColor(previewHeader);
               return (
                 <div className="flex flex-col gap-3">
                   <p className="text-sm font-medium text-gray-700">Preview</p>
@@ -1959,17 +1959,17 @@ const GlobalBrandingPage = ({ brandingId }) => {
                             draggable={false}
                           />
                         ) : (
-                          <RiSparkling2Line className="h-4 w-4 shrink-0" style={{ color: headerText }} />
+                          <RiSparkling2Line className="h-4 w-4 shrink-0" style={{ color: previewHeaderText }} />
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold leading-tight truncate" style={{ color: headerText }}>
+                          <div className="text-xs font-semibold leading-tight truncate" style={{ color: previewHeaderText }}>
                             AI Assistant
                           </div>
-                          <div className="text-[10px] leading-tight opacity-70 truncate" style={{ color: headerText }}>
+                          <div className="text-[10px] leading-tight opacity-70 truncate" style={{ color: previewHeaderText }}>
                             Application Form
                           </div>
                         </div>
-                        <div className="text-lg leading-none opacity-60" style={{ color: headerText }}>
+                        <div className="text-lg leading-none opacity-60" style={{ color: previewHeaderText }}>
                           ×
                         </div>
                       </div>
@@ -1988,7 +1988,7 @@ const GlobalBrandingPage = ({ brandingId }) => {
                         <div className="flex justify-start">
                           <div
                             className="rounded-2xl rounded-tl-sm px-2.5 py-1.5 text-[10px] leading-tight max-w-[75%]"
-                            style={{ backgroundColor: previewHeader, color: headerText }}
+                            style={{ backgroundColor: previewHeader, color: previewHeaderText }}
                           >
                             Hi! I&apos;m your assistant 👋
                           </div>
