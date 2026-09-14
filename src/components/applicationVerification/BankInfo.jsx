@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import DisplayText from "@/components/shared/DisplayText";
 import { FIELD_TYPES } from "@/data/constants";
 import { useEnterToNextField } from "@/hooks/useEnterToNextField";
@@ -75,7 +76,7 @@ function BankInfo({
   // add owners for suggestions
   useEffect(() => {
     if (formData) {
-      const lookupData = formData?.company_lookup_data;
+      const lookupData = toLookupArray(formData?.company_lookup_data);
       const searchField = step?.ownerSuggesstions || ["founders"];
       const founders = [];
       searchField.forEach((field) => {

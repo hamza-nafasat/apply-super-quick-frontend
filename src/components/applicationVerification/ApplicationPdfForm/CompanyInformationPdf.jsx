@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import { naicsToMcc } from "../../../../public/NAICStoMCC.js";
 import { FIELD_TYPES } from "@/data/constants";
 import { STATE_SUGGESTIONS } from "@/constants/constants.js";
@@ -151,10 +152,10 @@ function CompanyInformationPdf({
 
   useEffect(() => {
     const prev = prevRef.current;
-    const curr = formData?.company_lookup_data;
+    const curr = toLookupArray(formData?.company_lookup_data);
     if (JSON.stringify(prev) === JSON.stringify(curr)) return;
     prevRef.current = curr;
-    if (!curr) return;
+    if (!curr.length) return;
     (async () => {
       const description = curr.find((i) => i?.name === "companydescription")?.result;
       if (naicsToMccDetails?.NAICS) return;

@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import DisplayText from "@/components/shared/DisplayText";
 import { FIELD_TYPES } from "@/data/constants";
 import { useEnterToNextField } from "@/hooks/useEnterToNextField";
@@ -181,11 +182,11 @@ function CompanyInformation({
 
   useEffect(() => {
     const prev = prevRef.current;
-    const curr = formData?.company_lookup_data;
+    const curr = toLookupArray(formData?.company_lookup_data);
     // Compare actual values, not just reference
     if (JSON.stringify(prev) === JSON.stringify(curr)) return;
     prevRef.current = curr;
-    if (!curr) return;
+    if (!curr.length) return;
     (async () => {
       const description = curr.find((i) => i?.name === "companydescription")?.result;
       if (naicsToMccDetails?.NAICS) return;
@@ -222,7 +223,7 @@ function CompanyInformation({
 
   useEffect(() => {
     if (fields && fields.length > 0) {
-      const lookupData = formData?.company_lookup_data;
+      const lookupData = toLookupArray(formData?.company_lookup_data);
       const initialForm = {};
       let isDateField = false;
       fields.forEach((field) => {

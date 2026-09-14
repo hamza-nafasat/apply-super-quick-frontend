@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import { findFieldKeyByName } from "@/lib/formFieldLookup";
 import { requiresOtherOperators, resolveOtherOperatorsAnswer } from "@/lib/ownerOperatorRules";
 import DisplayText from "@/components/shared/DisplayText";
@@ -278,7 +279,7 @@ function CompanyOwners({
   // ── owner name suggestions from lookup data ───────────────────────────────
   useEffect(() => {
     if (!formData) return;
-    const lookupData = formData?.company_lookup_data;
+    const lookupData = toLookupArray(formData?.company_lookup_data);
     const searchField = step?.ownerSuggesstions || ["founders"];
     const founders = [];
     searchField.forEach((field) => {

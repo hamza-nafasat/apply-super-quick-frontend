@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import TextField from "@/components/shared/small/TextField";
 import { additionalOwnersFields, FIELD_TYPES, formFieldsStaticKeys } from "@/data/constants";
 import { STATE_SUGGESTIONS } from "@/constants/constants";
@@ -235,7 +236,7 @@ function CompanyOwnersPdf({ name, reduxData, fields, step, isSignature, formInne
 
   useEffect(() => {
     if (!formData) return;
-    const lookupData = formData?.company_lookup_data;
+    const lookupData = toLookupArray(formData?.company_lookup_data);
     const searchField = step?.ownerSuggesstions || ["founders"];
     const founders = [];
     searchField.forEach((field) => {

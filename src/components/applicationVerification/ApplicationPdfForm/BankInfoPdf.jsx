@@ -1,3 +1,4 @@
+import { toLookupArray } from "@/lib/utils";
 import { FIELD_TYPES } from "@/data/constants";
 import { useGetBankLookupMutation } from "@/redux/apis/formApis";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
@@ -76,7 +77,7 @@ function BankInfoPdf({ name, fields, step, isSignature, formInnerData, setFormIn
   // add owners for account holder suggestions
   useEffect(() => {
     if (formData) {
-      const lookupData = formData?.company_lookup_data;
+      const lookupData = toLookupArray(formData?.company_lookup_data);
       const searchField = step?.ownerSuggesstions || ["founders"];
       const founders = [];
       searchField.forEach((field) => {
