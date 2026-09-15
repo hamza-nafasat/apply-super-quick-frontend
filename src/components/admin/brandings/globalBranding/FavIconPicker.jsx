@@ -7,7 +7,7 @@ function getLogoUrl(logo) {
   return typeof logo === "string" ? logo : logo.url || logo.preview || null;
 }
 
-function FaviconPicker({ logos = [], value, onChange }) {
+function FaviconPicker({ logos = [], value, onChange, onCandidatesChange }) {
   const [candidates, setCandidates] = useState([]);
   const [checking, setChecking] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -17,6 +17,7 @@ function FaviconPicker({ logos = [], value, onChange }) {
 
     if (urls.length === 0) {
       setCandidates([]);
+      onCandidatesChange?.([]);
       setChecked(true);
       return;
     }
@@ -42,11 +43,14 @@ function FaviconPicker({ logos = [], value, onChange }) {
     });
 
     Promise.all(checks).then((results) => {
-      setCandidates(results.filter(Boolean));
+      const found = results.filter(Boolean);
+      setCandidates(found);
+      // Lets the page tell the branding AI which logos are favicon-sized (the same ones shown here).
+      onCandidatesChange?.(found);
       setChecking(false);
       setChecked(true);
     });
-  }, [logos]);
+  }, [logos, onCandidatesChange]);
 
   const isSelected = (url) => value === url;
 

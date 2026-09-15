@@ -202,6 +202,7 @@ const GlobalBrandingPage = ({ brandingId }) => {
   const [aiBannerTextColor, setAiBannerTextColor] = useState("");
   const [aiUseCustomIcon, setAiUseCustomIcon] = useState(true);
   const [favicon, setFavicon] = useState("");
+  const [faviconCandidates, setFaviconCandidates] = useState([]);
   const [tabTitle, setTabTitle] = useState("Online-Application");
   const [headerEffect, setHeaderEffect] = useState("none");
   const [footerEffect, setFooterEffect] = useState("none");
@@ -1042,7 +1043,12 @@ const GlobalBrandingPage = ({ brandingId }) => {
         }
       },
     },
-    logos: logos.map((l) => ({ url: l.url || l.preview, isFavicon: !!l.isFavicon })).filter((l) => l.url),
+    logos: logos
+      .map((l) => {
+        const url = l.url || l.preview;
+        return { url, isFavicon: !!l.isFavicon, isFaviconCandidate: faviconCandidates.includes(url) };
+      })
+      .filter((l) => l.url),
     colorPalette: colorPalette.map((c) => (typeof c === "string" ? c : c?.hex)).filter(Boolean),
     deps: {
       brandingId,
@@ -1081,6 +1087,7 @@ const GlobalBrandingPage = ({ brandingId }) => {
       aiBannerTextColor,
       selectedLogo,
       logosCount: logos.length,
+      faviconCandidates: faviconCandidates.join("|"),
       formsCount: allFormsResponse?.data?.length ?? 0,
     },
   });
@@ -2039,7 +2046,12 @@ const GlobalBrandingPage = ({ brandingId }) => {
               <label className="text-sm font-medium text-gray-700">Browser Icon</label>
 
               <div className="rounded-lg border border-gray-200 bg-[#FAFBFF] p-3">
-                <FaviconPicker logos={logos} value={favicon} onChange={setFavicon} />
+                <FaviconPicker
+                  logos={logos}
+                  value={favicon}
+                  onChange={setFavicon}
+                  onCandidatesChange={setFaviconCandidates}
+                />
               </div>
 
               <span className="text-[11px] text-gray-400">Choose the icon shown beside the tab title.</span>

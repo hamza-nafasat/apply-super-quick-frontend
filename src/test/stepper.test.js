@@ -1105,11 +1105,11 @@ describe("stepper · [QA 5.23] application PDF header logo", () => {
 
   it("keeps its aspect ratio instead of being forced square", () => {
     const logoImg = around(src, 'alt="Logo"', 200, 200);
-    // Height is pinned, width follows the aspect ratio, and it is capped so a
-    // wide logo cannot push the title off the header.
-    assert.match(logoImg, /\bh-\d/, "height must be constrained");
+    // Height and width are capped by the branding's Logo Max Height/Width (same as the
+    // app header), and width follows the aspect ratio within those caps.
+    assert.match(logoImg, /maxHeight: `\$\{appLogoMaxHeight \?\? \d+\}px`/, "height must be capped by branding");
     assert.match(logoImg, /\bw-auto\b/, "width must follow the aspect ratio");
-    assert.match(logoImg, /\bmax-w-/, "width must still be capped");
+    assert.match(logoImg, /maxWidth: `\$\{appLogoMaxWidth \?\? \d+\}px`/, "width must be capped by branding");
     assert.match(logoImg, /object-contain/);
   });
 
