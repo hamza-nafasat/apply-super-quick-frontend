@@ -111,6 +111,7 @@ function CompanyOwners({
   const [rowIds, setRowIds] = useState([]); // parallel to owners — never stored in form
   const [isAllRequiredFieldsFilled, setIsAllRequiredFieldsFilled] = useState(false);
   const [submitButtonText, setSubmitButtonText] = useState("Some Required Fields are Missing");
+  const [isOperatorMissing, setIsOperatorMissing] = useState(false);
 
   const isCreator = user?._id && user?._id === step?.owner && user?.role !== "guest";
 
@@ -383,6 +384,7 @@ function CompanyOwners({
     else if (!isEmailValidated) setSubmitButtonText("A valid email is required for every owner");
     else if (!isOperatorExist) setSubmitButtonText("At least one primary operator required");
 
+    setIsOperatorMissing(!isOperatorExist);
     setIsAllRequiredFieldsFilled(
       allFilled && areOwnersComplete && isOperatorExist && isEmailValidated && isSignatureDone,
     );
@@ -694,6 +696,14 @@ function CompanyOwners({
                     </div>
                   );
                 })}
+
+                {isOperatorMissing && owners.length > 0 && (
+                  // A Beneficial Owner alone doesn't satisfy the rule — say exactly what unblocks Next.
+                  <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                    At least one person must be a primary operator. Set someone's <strong>Role</strong> to{" "}
+                    <strong>Primary Operator</strong> or <strong>Both</strong> — a Beneficial Owner alone doesn't count.
+                  </p>
+                )}
 
                 <div className="flex w-full justify-end">
                   <Button
