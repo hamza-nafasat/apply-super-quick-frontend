@@ -179,6 +179,7 @@ const Email = () => {
         subject: t.subject,
         attachedFormCount: (t.forms || []).length,
         attachedFormNames: (t.forms || []).map((f) => f.name),
+        attachedForms: (t.forms || []).map((f) => ({ _id: f._id, name: f.name })),
       })),
       // Derive attached forms from the live query rather than viewModalData so it auto-updates after attach/detach
       attachedForms: viewModalData?._id
@@ -202,12 +203,24 @@ const Email = () => {
         const id = latestRef.current.viewModalData?._id;
         if (!id) throw new Error("No template is currently open");
         await handleSave();
-        await attachEmailTemplate({ emailTemplateId: id, formIds }).unwrap();
+        await attachEmailTemplate({ emailTemplateId: id, formIds, mode: "add" }).unwrap();
       },
-      attachToForms: async ({ formIds, templateId }) => {
-        const id = templateId || viewModalData?._id;
-        if (!id) throw new Error("No template specified");
-        await attachEmailTemplate({ emailTemplateId: id, formIds }).unwrap();
+      // mode "add" keeps every existing attachment; "remove" detaches only the given forms.
+      attachToForms: async ({ formIds, templateIds, mode = "add" }) => {
+        const ids = templateIds?.length ? templateIds : [latestRef.current.viewModalData?._id].filter(Boolean);
+        if (!ids.length) throw new Error("No template specified");
+        const failed = [];
+        const replaced = [];
+        for (const emailTemplateId of ids) {
+          try {
+            const res = await attachEmailTemplate({ emailTemplateId, formIds, mode }).unwrap();
+            replaced.push(...(res?.replaced || []));
+          } catch (err) {
+            failed.push(err?.data?.message || emailTemplateId);
+          }
+        }
+        if (failed.length) throw new Error(`${failed.length} of ${ids.length} template(s) failed: ${failed.join("; ")}`);
+        return { replaced };
       },
       openTemplate: ({ templateId, mode }) => {
         const template = (templates || []).find((t) => String(t._id) === String(templateId));

@@ -755,22 +755,12 @@ export default function ApplicationsCard() {
         setCreateFormModal(true);
         setFile(null);
       },
+      // mode "add"/"remove" changes only this form, so other attachments are never dropped.
       attachEmailTemplate: async ({ formId, templateIds }) => {
-        const templates = allEmailTemplates?.data || [];
         const errors = [];
         for (const templateId of templateIds) {
-          const template = templates.find((t) => t._id === templateId);
-          if (!template) {
-            errors.push(templateId);
-            continue;
-          }
-          const currentFormIds = (template.forms || []).map((f) => f._id);
-          if (currentFormIds.includes(formId)) continue; // already attached
           try {
-            await attachEmailTemplateMutation({
-              emailTemplateId: templateId,
-              formIds: [...currentFormIds, formId],
-            }).unwrap();
+            await attachEmailTemplateMutation({ emailTemplateId: templateId, formIds: [formId], mode: "add" }).unwrap();
           } catch {
             errors.push(templateId);
           }
@@ -778,20 +768,10 @@ export default function ApplicationsCard() {
         if (errors.length) throw new Error(`Failed to attach ${errors.length} template(s)`);
       },
       detachEmailTemplate: async ({ formId, templateIds }) => {
-        const templates = allEmailTemplates?.data || [];
         const errors = [];
         for (const templateId of templateIds) {
-          const template = templates.find((t) => t._id === templateId);
-          if (!template) {
-            errors.push(templateId);
-            continue;
-          }
-          const currentFormIds = (template.forms || []).map((f) => f._id);
           try {
-            await attachEmailTemplateMutation({
-              emailTemplateId: templateId,
-              formIds: currentFormIds.filter((id) => id !== formId),
-            }).unwrap();
+            await attachEmailTemplateMutation({ emailTemplateId: templateId, formIds: [formId], mode: "remove" }).unwrap();
           } catch {
             errors.push(templateId);
           }

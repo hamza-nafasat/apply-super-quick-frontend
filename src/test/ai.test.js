@@ -699,7 +699,10 @@ describe("components/shared/AIChat · applyToolCall · AI-mode admin flows", () 
   });
 
   it("[QA 4.14] attaches templates to forms from either page", () => {
-    assert.match(emailPage, /attachToForms: async \(\{ formIds, templateId \}\) =>/);
+    assert.match(emailPage, /attachToForms: async \(\{ formIds, templateIds, mode = "add" \}\) =>/);
+    // Attaching must add to existing attachments, never replace them.
+    assert.match(emailPage, /formIds, mode \}\)\.unwrap\(\)/);
+    assert.match(read("components/admin/ApplicationsCard.jsx"), /formIds: \[formId\], mode: "add"/);
     assert.match(formsPage, /attachEmailTemplate: async \(\{ formId, templateIds \}\) =>/);
   });
 

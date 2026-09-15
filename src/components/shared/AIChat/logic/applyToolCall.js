@@ -1534,11 +1534,19 @@ export function createApplyToolCall(bindings) {
       return;
     }
 
-    if (tool === "attachTemplateToForms") {
-      const { explanation, formIds, templateId } = args;
+    if (tool === "attachTemplateToForms" || tool === "detachTemplateFromForms") {
+      const { explanation, formIds, templateIds, templateId } = args;
       try {
-        if (ctx.actions.attachToForms) await ctx.actions.attachToForms({ formIds, templateId });
-        addMessage({ role: "assistant", content: explanation });
+        if (!ctx.actions.attachToForms) throw new Error("Attaching isn't available on this screen");
+        const result = await ctx.actions.attachToForms({
+          formIds,
+          templateIds: templateIds?.length ? templateIds : [templateId].filter(Boolean),
+          mode: tool === "detachTemplateFromForms" ? "remove" : "add",
+        });
+        const replacedNote = (result?.replaced || [])
+          .map((r) => `**${r.templateName}** was replaced on ${r.formIds.length} form(s) (one template per email type).`)
+          .join(" ");
+        addMessage({ role: "assistant", content: replacedNote ? `${explanation}\n\n${replacedNote}` : explanation });
         if (isVoiceModeRef.current) speak(explanation);
       } catch (err) {
         const detail = err?.data?.message || err?.message || "";
