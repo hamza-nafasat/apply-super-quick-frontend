@@ -3,6 +3,8 @@ import { PAGE_LABELS, PAGE_ROUTES, SERVER_URL } from "../constants/aiChatConstan
 
 import { toPreviewSection } from "./formPreviewUtils.js";
 
+const APPLICANT_ALLOWED_TOOLS = new Set(["enterTranslationMode"]);
+
 /**
  * Creates the tool-call handler with bindings from the chat widget/controller.
  * Body is transplanted verbatim from the stagging AIChatWidget's applyToolCall
@@ -45,6 +47,13 @@ export function createApplyToolCall(bindings) {
     console.log(`%c[TOOL] applyToolCall: ${tool}`, "color:#c0f; font-weight:bold", args);
     const ctx = getScreenContext();
     if (!ctx?.actions) return;
+    // Guided mode was removed: the applicant assistant is information-only, so it may
+    // never fill, highlight, scroll to, or navigate between fields or steps.
+    if (assistantMode === "applicant" && !APPLICANT_ALLOWED_TOOLS.has(tool)) {
+      console.warn(`[TOOL] blocked applicant tool call: ${tool}`);
+      if (args?.explanation) addMessage({ role: "assistant", content: args.explanation });
+      return;
+    }
     const defaultEndpoint =
       assistantMode === "applicant" ? `${SERVER_URL}/api/ai/applicant-chat` : `${SERVER_URL}/api/ai/branding-chat`;
     const chatEndpoint = ctx.aiEndpoint || defaultEndpoint;

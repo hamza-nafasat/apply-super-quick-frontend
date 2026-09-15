@@ -224,9 +224,9 @@ describe("components/shared/AIChat · buildChatPayload · buildChatPayload()", (
     assert.equal(context.description, "Enter legal name and website.");
   });
 
-  it("enables max-help mode only for the applicant assistant", () => {
-    assert.equal(buildChatPayload({ messages: [], ctx, assistantMode: "applicant" }).context.maxHelpMode, true);
-    assert.equal(buildChatPayload({ messages: [], ctx, assistantMode: "service-provider" }).context.maxHelpMode, false);
+  it("never requests guided (max-help) mode — the applicant assistant is information-only", () => {
+    assert.ok(!("maxHelpMode" in buildChatPayload({ messages: [], ctx, assistantMode: "applicant" }).context));
+    assert.ok(!("maxHelpMode" in buildChatPayload({ messages: [], ctx, assistantMode: "service-provider" }).context));
   });
 
   it("prefers the DOM-discovered currentState over the registered one", () => {
@@ -259,7 +259,7 @@ describe("components/shared/AIChat · buildChatPayload · buildChatPayload()", (
     it("builds a payload when no screen is registered", () => {
       const { context } = buildChatPayload({ messages: [], ctx: null, assistantMode: "applicant" });
       assert.equal(context.screenId, undefined);
-      assert.equal(context.maxHelpMode, true);
+      assert.ok(!("maxHelpMode" in context));
     });
   });
 });

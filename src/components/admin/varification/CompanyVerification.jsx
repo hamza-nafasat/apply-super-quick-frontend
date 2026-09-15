@@ -196,8 +196,7 @@ function CompanyVerification({ formId, brandingName, draftId }) {
     screenName: "Company Information",
     description:
       "The applicant enters their company's full legal name and website URL. " +
-      "After all required fields are filled, call goToNextStep to submit and proceed automatically. " +
-      'If the applicant says their company has no website, fill field "noWebsite" with value "true" to check the checkbox — this removes the URL requirement.',
+      'If the company has no website, the applicant can check "This company has no website" themselves — this removes the URL requirement.',
     aiEndpoint: `${getEnv("SERVER_URL")}/api/ai/applicant-chat`,
     formRef: companyFormRef,
     currentState: {}, // fields discovered from DOM via formRef
