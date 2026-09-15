@@ -105,7 +105,6 @@ function CompanyOwners({
 
   const [ownersFromLookup, setOwnersFromLookup] = useState([]);
   const [filteredOwners, setFilteredOwners] = useState([]);
-  const [suggestFor, setSuggestFor] = useState(null);
 
   const [loadingNext, setLoadingNext] = useState(false);
   const [form, setForm] = useState({});
@@ -181,7 +180,6 @@ function CompanyOwners({
         setFilteredOwners(
           value ? ownersFromLookup.filter((o) => String(o).toLowerCase().includes(value.toLowerCase())) : [],
         );
-        setSuggestFor(value ? index : null);
       }
 
       setForm((prev) => {
@@ -195,7 +193,6 @@ function CompanyOwners({
 
       if (isFilter) {
         setFilteredOwners([]);
-        setSuggestFor(null);
       }
     },
     [ownersFromLookup, otherOwnersStateUniqueId, otherOwnersStateName],
@@ -222,7 +219,6 @@ function CompanyOwners({
       });
       setRowIds((prev) => prev.filter((_, i) => i !== index));
       setFilteredOwners([]);
-      setSuggestFor(null);
     },
     [rowIds, otherOwnersStateUniqueId, otherOwnersStateName],
   );
@@ -517,31 +513,19 @@ function CompanyOwners({
                   return (
                     <div
                       key={rowKey}
-                      className="mt-3 flex min-w-full flex-col items-center justify-between gap-4 border-2 border-[#066969] p-4 md:flex-row"
+                      className="mt-3 flex w-full min-w-0 flex-col gap-4 rounded-lg border-2 border-[#066969] p-3 sm:p-4"
                     >
-                      <div className="wrap flex w-full min-w-100 flex-col gap-3">
-                        <div className="relative flex w-full gap-4">
+                      <div className="flex w-full min-w-0 flex-col gap-3">
+                        <div className="relative grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                           <TextField
                             label="Owner or primary operator name"
                             name="name"
                             required
                             placeholder="First name, middle name (optional), last name"
                             value={ownerName}
+                            suggestions={filteredOwners}
                             onChange={(e) => setOwnerVal("name", e.target.value, index)}
                           />
-                          {suggestFor === index && filteredOwners?.length > 0 && (
-                            <ul className="absolute top-20 z-40 mt-1 w-full max-w-100 rounded border bg-white shadow">
-                              {filteredOwners.map((suggestion, i) => (
-                                <li
-                                  key={i}
-                                  onClick={() => setOwnerVal("name", suggestion, index, true)}
-                                  className="cursor-pointer px-2 py-1 hover:bg-gray-200"
-                                >
-                                  {suggestion}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
                           <TextField
                             name="email"
                             label="Email Address"
@@ -559,11 +543,11 @@ function CompanyOwners({
                             placeholder="e.g. 555-867-5309"
                             value={phone}
                             onChange={(e) => setOwnerVal("phone", e.target.value, index)}
-                            className={"max-w-[30%] min-w-100"}
+                            className={"w-full min-w-0"}
                           />
                         </div>
 
-                        <div className="flex w-full gap-4">
+                        <div className="flex w-full flex-col gap-4 lg:flex-row lg:gap-8">
                           <SimpleRadioInputType
                             field={{
                               label: "Role",
@@ -586,7 +570,7 @@ function CompanyOwners({
                                   Do you have full information for this person?
                                   <span className="group relative inline-flex items-center">
                                     <span className="cursor-help text-sm text-gray-400">ⓘ</span>
-                                    <span className="invisible absolute left-5 top-0 z-50 w-72 rounded bg-gray-800 p-2 text-xs font-normal text-white shadow-lg group-hover:visible">
+                                    <span className="invisible absolute right-3 top-0 z-50 w-72 rounded bg-gray-800 p-2 text-xs font-normal text-white shadow-lg group-hover:visible">
                                       "Full information" includes: Social Security, Tax, or National ID number · Home
                                       address · Date of birth · Ownership percentage · Government-issued ID number and
                                       issuer
@@ -608,7 +592,7 @@ function CompanyOwners({
                         </div>
 
                         {(role === "primary_operator" || role === "both") && (
-                          <div className="flex w-full gap-4">
+                          <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                             <TextField
                               name="job_title"
                               label="Job Title"
@@ -620,7 +604,7 @@ function CompanyOwners({
 
                         {have_detail === "yes" && (
                           <div className="flex w-full flex-col gap-4">
-                            <div className="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                               <TextField
                                 name="ssn"
                                 label="Social Security, Tax, or National ID Number"
@@ -696,7 +680,7 @@ function CompanyOwners({
                           </div>
                         )}
 
-                        <div className="flex gap-2 self-end">
+                        <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto sm:self-end">
                           {/* Saves the section's progress, so an owner's details survive leaving the page. */}
                           <Button onClick={onSaveProgress} className="max-w-fit! py-2.5!" label="Save Owner" />
                           <Button
@@ -715,7 +699,7 @@ function CompanyOwners({
                   <Button
                     onClick={handleAddOwner}
                     icon={GoPlus}
-                    className="text-textPrimary! rounded-lg! border! border-[#D5D8DD]! bg-[#F5F5F5]! font-medium! hover:bg-gray-200!"
+                    className="text-textPrimary! w-full! sm:w-auto! rounded-lg! border! border-[#D5D8DD]! bg-[#F5F5F5]! font-medium! hover:bg-gray-200!"
                     label="Add additional owner or operator"
                   />
                 </div>
