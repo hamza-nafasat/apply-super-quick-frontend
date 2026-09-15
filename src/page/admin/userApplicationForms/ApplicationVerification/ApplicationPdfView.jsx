@@ -46,7 +46,7 @@ export const ApplicationPdfViewCommonProps = ({
   submittedFormId: submittedFormIdProp = null,
 }) => {
   const dispatch = useDispatch();
-  const { logo } = useBranding();
+  const { logo, appLogoMaxWidth, appLogoMaxHeight } = useBranding();
   const { isDisabledAllFields } = useSelector((state) => state.form);
   const usesPrefilledData = initialSubmitData != null && typeof initialSubmitData === "object";
   const [submittedFormId, setSubmittedFormId] = useState(submittedFormIdProp);
@@ -141,13 +141,15 @@ export const ApplicationPdfViewCommonProps = ({
   return (
     <>
       {isPdf && (
-        <div className="flex h-16 items-center justify-between rounded-md border-b bg-white px-6 shadow">
+        <div className="flex min-h-16 items-center justify-between rounded-md border-b bg-white px-6 shadow">
           {/* Hamburger Icon (mobile only) */}
           <div className="my-4 flex items-center gap-8">
+            {/* Same size limits as the app header, taken from the branding's Logo Max Width/Height */}
             <img
               src={logo || ""}
               alt="Logo"
-              className="h-12 w-auto max-w-55 object-contain"
+              className="w-auto object-contain"
+              style={{ maxWidth: `${appLogoMaxWidth ?? 300}px`, maxHeight: `${appLogoMaxHeight ?? 100}px` }}
               referrerPolicy="no-referrer"
             />
             <h1 className="text-2xl font-semibold text-gray-800">{form?.data?.name}</h1>

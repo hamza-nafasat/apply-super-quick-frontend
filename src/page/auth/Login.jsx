@@ -35,6 +35,8 @@ const Login = () => {
     setHeaderText,
     setFooterText,
     setApplicationFooterText,
+    setAppLogoMaxWidth,
+    setAppLogoMaxHeight,
   } = useBranding();
 
   const getUserAndSetBranding = useCallback(async () => {
@@ -65,6 +67,8 @@ const Login = () => {
           setHeaderText(formBranding.colors.headerText);
           setFooterText(formBranding.colors.footerText);
           setApplicationFooterText(formBranding.applicationFooterText);
+          if (formBranding.appLogoMaxWidth) setAppLogoMaxWidth(formBranding.appLogoMaxWidth);
+          if (formBranding.appLogoMaxHeight) setAppLogoMaxHeight(formBranding.appLogoMaxHeight);
         }
       } else {
         dispatch(userNotExist());
