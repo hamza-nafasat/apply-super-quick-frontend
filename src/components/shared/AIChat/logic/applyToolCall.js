@@ -3,7 +3,9 @@ import { PAGE_LABELS, PAGE_ROUTES, SERVER_URL } from "../constants/aiChatConstan
 
 import { buildFullPreviewSections, toPreviewSection } from "./formPreviewUtils.js";
 
-const APPLICANT_ALLOWED_TOOLS = new Set(["enterTranslationMode"]);
+// Guided mode and AI-driven language switching are both gone: the applicant
+// assistant answers questions and calls nothing.
+const APPLICANT_ALLOWED_TOOLS = new Set();
 
 /**
  * Creates the tool-call handler with bindings from the chat widget/controller.
@@ -36,9 +38,6 @@ export function createApplyToolCall(bindings) {
     suppressNextScreenGreetingRef,
     pendingFollowUpRef,
     navTimeoutRef,
-    translationModeRef,
-    setTranslationMode,
-    tooltipCacheRef,
     sendMessageRef,
     addBrandingToFormGlobal,
   } = bindings;
@@ -2150,16 +2149,6 @@ export function createApplyToolCall(bindings) {
         chatEndpoint,
         freshCtx,
       );
-      return;
-    }
-
-    if (tool === "enterTranslationMode") {
-      const { language, languageName, explanation } = args;
-      const mode = { lang: language, langName: languageName };
-      translationModeRef.current = mode;
-      setTranslationMode(mode);
-      tooltipCacheRef.current = {}; // clear cached translations from any previous language
-      addMessage({ role: "assistant", content: explanation || "" });
       return;
     }
 

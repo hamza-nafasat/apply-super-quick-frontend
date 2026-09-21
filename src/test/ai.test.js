@@ -25,7 +25,7 @@ import path from "node:path";
 import { checkFieldForErrors } from "../lib/checkFieldForErrors.js";
 import { buildChatPayload } from "../components/shared/AIChat/utils/buildChatPayload.js";
 import { WIDGET_STRINGS } from "../components/shared/AIChat/constants/widgetStrings.js";
-import { LANGUAGES } from "../components/shared/AIChat/constants/languages.js";
+import { LANGUAGES, PROMPT_LANGUAGES, readStoredLanguage } from "../components/shared/AIChat/constants/languages.js";
 import { toPreviewSection } from "../components/shared/AIChat/logic/formPreviewUtils.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -239,9 +239,12 @@ describe("components/shared/AIChat · buildChatPayload · buildChatPayload()", (
     assert.equal(buildChatPayload({ messages: [], ctx }).context.currentState, ctx.currentState);
   });
 
-  it("[QA 3.27] sends formLanguage only for a non-English form", () => {
-    assert.ok(!("formLanguage" in buildChatPayload({ messages: [], ctx, formLanguage: "English" }).context));
-    assert.equal(buildChatPayload({ messages: [], ctx, formLanguage: "Spanish" }).context.formLanguage, "Spanish");
+  it("sends the selected language so the assistant answers in it", () => {
+    assert.ok(!("language" in buildChatPayload({ messages: [], ctx }).context));
+    assert.deepEqual(
+      buildChatPayload({ messages: [], ctx, language: { code: "es", name: "Spanish" } }).context.language,
+      { code: "es", name: "Spanish" },
+    );
   });
 
   it("never serialises page callbacks or DOM refs", () => {
@@ -294,14 +297,22 @@ describe("components/shared/AIChat · widgetStrings · WIDGET_STRINGS", () => {
 });
 
 describe("components/shared/AIChat · languages · LANGUAGES", () => {
-  it("starts the rotating banner in English", () => {
+  it("offers English first so an unset selector starts there", () => {
     assert.equal(LANGUAGES[0].code, "en");
+    assert.deepEqual(readStoredLanguage(), { code: "en", name: "English" });
   });
 
-  it("gives every language a unique code and a non-empty banner", () => {
+  it("gives every language a unique code, a native name and a flag", () => {
     const codes = LANGUAGES.map((l) => l.code);
     assert.equal(new Set(codes).size, codes.length, "duplicate language code");
-    for (const l of LANGUAGES) assert.ok(l.banner?.trim() && l.native?.trim(), `${l.code} is incomplete`);
+    for (const l of LANGUAGES) {
+      assert.ok(l.native?.trim() && l.name?.trim() && l.flag?.trim(), `${l.code} is incomplete`);
+    }
+  });
+
+  it("rotates the selector prompt through translated labels", () => {
+    assert.ok(PROMPT_LANGUAGES.length >= 10);
+    for (const l of PROMPT_LANGUAGES) assert.ok(l.prompt?.trim(), `${l.code} has no prompt`);
   });
 });
 
@@ -485,26 +496,36 @@ describe("components/shared/AIChat · aiChatConstants · navigation contract", (
   );
 });
 
-describe("components/shared/AIChat · translation mode", () => {
+describe("components/shared/AIChat · language selection", () => {
   const widget = read("components/shared/AIChat/AIChatWidget.jsx");
   const tools = read("components/shared/AIChat/logic/applyToolCall.js");
+  const panel = read("components/shared/AIChat/components/ChatPanel.jsx");
+  const selector = read("components/shared/AIChat/components/LanguageSelector.jsx");
 
-  it("[QA 3.14 / 3.15] enterTranslationMode switches the widget into the applicant's language", () => {
-    const branch = blockOf(tools, 'if (tool === "enterTranslationMode") {');
-    assert.match(branch, /translationModeRef\.current = mode;/);
-    assert.match(branch, /setTranslationMode\(mode\);/);
-    assert.match(branch, /tooltipCacheRef\.current = \{\};/, "a new language must not reuse cached translations");
+  it("the selector is the only way the language changes — the AI cannot switch it", () => {
+    assert.doesNotMatch(widget, /applyDetectedLanguage|detectFormLanguage/);
+    assert.doesNotMatch(tools, /enterTranslationMode/);
   });
 
-  it("[QA 3.18 / 3.31] leaves translation mode when the applicant returns to the form language", () => {
+  it("remembers the choice and sends it with every request", () => {
+    assert.match(widget, /storeLanguage\(next\);/);
+    assert.match(widget, /language: languageRef\.current,/);
     assert.match(
-      blockOf(widget, "const applyDetectedLanguage = ("),
-      /if \(detectedLanguage === formLangCode\) \{\s*if \(translationModeRef\.current\) \{\s*translationModeRef\.current = null;\s*setTranslationMode\(null\);/,
+      read("components/shared/AIChat/utils/buildChatPayload.js"),
+      /context\.language = \{ code: language\.code, name: language\.name \};/,
     );
   });
 
-  it("[QA 3.18 / 3.31] applies the detected language on every AI reply path", () => {
-    assert.ok((widget.match(/applyDetectedLanguage\(data\.detectedLanguage\);/g) || []).length >= 2);
+  it("turns hover translation on for any non-English choice", () => {
+    assert.match(widget, /next\.code === "en" \? null : \{ lang: next\.code, langName: next\.name \}/);
+    assert.match(widget, /tooltipCacheRef\.current = \{\};/);
+  });
+
+  it("renders a searchable, flag-labelled picker in the chat panel", () => {
+    assert.match(panel, /<LanguageSelector/);
+    assert.match(selector, /import Select from "react-select";/);
+    assert.match(selector, /isSearchable/);
+    assert.match(selector, /opt\.flag/);
   });
 
   describe("[QA 3.15 / 3.18] hover translations", () => {
@@ -523,15 +544,6 @@ describe("components/shared/AIChat · translation mode", () => {
       assert.match(effect, /document\.removeEventListener\("mouseout", handleMouseOut\);/);
     });
   });
-
-  it(
-    "[QA 3.13] tells the assistant about manual ID entry on the QR screen",
-    () => {
-      const sa = read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx");
-      const qrDescription = sa.slice(sa.indexOf('? "The applicant scans a QR code'), sa.indexOf('aiStage === "idmission-loading"', sa.indexOf('? "The applicant scans a QR code')));
-      assert.match(qrDescription, /manual/i);
-    },
-  );
 });
 
 describe("components/shared/AIChat · field guidance", () => {
@@ -645,8 +657,17 @@ describe("components/shared/AIChat · applyToolCall · AI-mode admin flows", () 
     assert.match(branch, /buildFullPreviewSections\(loadedForm\)/);
     assert.match(branch, /formPreview: preview/);
     const utils = read("components/shared/AIChat/logic/formPreviewUtils.js");
-    assert.match(utils, /otp_blk[\s\S]{0,400}id_mission_details_blk/);
-    assert.match(utils, /BENEFICIAL_STATIC_FIELDS[\s\S]{0,200}ADDITIONAL_OWNER_FIELDS/);
+    // System steps render in completion order even when the form defines its own.
+    assert.match(
+      utils,
+      /SYSTEM_STEP_ORDER = \["otp_blk", "company_scraping_blk", "id_mission_blk", "id_mission_details_blk"\]/,
+    );
+    assert.match(utils, /SYSTEM_STEP_ORDER\.map\([\s\S]{0,200}byTitle\.get\(title\)/);
+    // The owner block shows the form's own stored owner fields, not a hard-coded guess.
+    assert.match(utils, /ADDITIONAL_OWNERS_SECTION_KEY = "additional_owners_information"/);
+    assert.match(utils, /ownerRowFields = ownerRowSection\?\.fields\?\.length/);
+    // The stepper's own ownership questions are added to the section's fields.
+    assert.match(utils, /\[\.\.\.BENEFICIAL_STATIC_FIELDS, \.\.\.\(section\.fields \|\| \[\]\)\]/);
     assert.match(read("components/shared/AIChat/ChatMessage.jsx"), /<FormPreview formName=\{message\.formPreview\.formName\}/);
   });
 

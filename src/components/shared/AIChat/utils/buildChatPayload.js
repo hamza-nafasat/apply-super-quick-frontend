@@ -2,10 +2,10 @@
  * Build the standard POST body for /api/ai/* chat endpoints.
  * Matches the wire payload sent by the stagging AIChatWidget exactly:
  *   { messages, context: { screenId, screenName, description, currentState,
- *     logos, colorPalette, forms, brandingId, formLanguage? } }
- * `formLanguage` is only included when it is a non-English language.
+ *     logos, colorPalette, forms, brandingId, language? } }
+ * `language` is the selector's choice, e.g. { code: "es", name: "Spanish" }.
  */
-export function buildChatPayload({ messages, ctx, assistantMode, currentState, formLanguage }) {
+export function buildChatPayload({ messages, ctx, currentState, language }) {
   const context = {
     screenId: ctx?.screenId,
     screenName: ctx?.screenName,
@@ -16,8 +16,9 @@ export function buildChatPayload({ messages, ctx, assistantMode, currentState, f
     forms: ctx?.forms || undefined,
     brandingId: ctx?.brandingId || undefined,
   };
-  if (formLanguage && formLanguage !== "English") {
-    context.formLanguage = formLanguage;
+  // The language the user picked in the selector; the assistant must answer in it.
+  if (language?.code && language?.name) {
+    context.language = { code: language.code, name: language.name };
   }
   return { messages, context };
 }

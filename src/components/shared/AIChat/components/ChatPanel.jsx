@@ -2,7 +2,7 @@ import { IoClose, IoSend } from "react-icons/io5";
 import ChatMessage from "../ChatMessage.jsx";
 import ADEPanel from "../ADEPanel.jsx";
 import PanelResizeHandles from "./PanelResizeHandles.jsx";
-import LanguageBanner from "./LanguageBanner.jsx";
+import LanguageSelector from "./LanguageSelector.jsx";
 
 export default function ChatPanel({
   panelRef,
@@ -21,8 +21,8 @@ export default function ChatPanel({
   onHeaderMouseDown,
   onResizeMouseDown,
   onClose,
-  bannerIdx,
-  bannerFading,
+  language,
+  onLanguageChange,
   messagesContainerRef,
   messages,
   isLoading,
@@ -91,11 +91,11 @@ export default function ChatPanel({
         </button>
       </div>
 
-      <LanguageBanner
-        bannerIdx={bannerIdx}
-        bannerFading={bannerFading}
-        effectiveBannerColor={effectiveBannerColor}
-        effectiveBannerText={effectiveBannerText}
+      <LanguageSelector
+        language={language}
+        onLanguageChange={onLanguageChange}
+        backgroundColor={effectiveBannerColor}
+        textColor={effectiveBannerText}
       />
 
       <div

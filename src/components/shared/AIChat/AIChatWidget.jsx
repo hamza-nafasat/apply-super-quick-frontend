@@ -19,7 +19,7 @@ import {
 } from "./constants/aiChatConstants.js";
 import { useAiVoice } from "./hooks/useAiVoice.js";
 import { WIDGET_STRINGS } from "./constants/widgetStrings.js";
-import { LANGUAGES } from "./constants/languages.js";
+import { readStoredLanguage, storeLanguage } from "./constants/languages.js";
 import { createApplyToolCall } from "./logic/applyToolCall.js";
 import ChatFab from "./components/ChatFab.jsx";
 import ChatPanel from "./components/ChatPanel.jsx";
@@ -95,7 +95,11 @@ export default function AIChatWidget() {
     sendMessageRef,
   });
 
-  // null when inactive; { lang: "es", langName: "Spanish" } when the applicant has activated translation mode.
+  // The language chosen in the chat's language selector — the single source of truth for
+  // the assistant's replies, the widget's own strings and hover translation.
+  const [language, setLanguageState] = useState(readStoredLanguage);
+  const languageRef = useRef(language);
+  // null for English; { lang, langName } otherwise, which turns on hover translation.
   const [translationMode, setTranslationMode] = useState(null);
   const translationModeRef = useRef(null);
   // Hover-translation tooltip: { text, x, y } or null
@@ -103,13 +107,9 @@ export default function AIChatWidget() {
   const tooltipCacheRef = useRef({}); // label text → translated string
   const tooltipTimerRef = useRef(null); // debounce timer
   const tooltipTargetRef = useRef(null); // currently hovered label element
-  // Detected language of the form (BCP-47 name, e.g. "Spanish"). Set on first open.
-  const formLanguageRef = useRef("English");
   // Tracks elements we disabled in applicant mode so we can re-enable them on page change.
   const maxHelpDisabledElsRef = useRef([]);
   const maxHelpDisabledSignsRef = useRef([]); // [data-ai-type="sign"] wrappers blocked via pointer-events
-  const [bannerIdx, setBannerIdx] = useState(0);
-  const [bannerFading, setBannerFading] = useState(false);
   // Stores the most recent field-focus timer callback so onInputChange can reset the timer.
   const fieldTimerCallbackRef = useRef(null);
   const panelRef = useRef(null);
@@ -168,7 +168,6 @@ export default function AIChatWidget() {
   const suppressNextScreenGreetingRef = useRef(false); // set by tool calls that handle their own transition message
   const initialGreetingShownRef = useRef(false); // prevents double-greeting when endpoint change clears messages mid-session
   // Tracks the most recently detected language (from AI [LANG:xx] tags) for widget string translation
-  const lastDetectedLanguageRef = useRef(null);
   const fabRef = useRef(null);          // ref to the floating action button
   const [fabNudged, setFabNudged] = useState(false); // true when FAB is dodging an overlapping element
   const [introButtonsDismissed, setIntroButtonsDismissed] = useState(false);
@@ -194,7 +193,6 @@ export default function AIChatWidget() {
     isVoiceModeRef.current = false;
     setIsVoiceMode(false);
     pendingListenRef.current = false;
-    lastDetectedLanguageRef.current = null;
     // Allow the greeting to re-fire for the new session
     initialGreetingShownRef.current = false;
     lastAnnouncedScreenIdRef.current = null;
@@ -734,41 +732,26 @@ export default function AIChatWidget() {
     }
   }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Maps form language names (from detectFormLanguage) to BCP-47 codes.
-  const FORM_LANG_TO_BCP47 = {
-    "English": "en", "Spanish": "es", "French": "fr", "Portuguese": "pt",
-    "Chinese": "zh", "Arabic": "ar", "German": "de", "Italian": "it",
-    "Korean": "ko", "Japanese": "ja", "Vietnamese": "vi", "Hindi": "hi",
-    "Russian": "ru", "Tagalog": "tl", "Filipino": "tl", "Polish": "pl",
+  // Applying a language choice: remember it, and mirror it into translation mode so
+  // hovering page text translates into the same language (English needs no translation).
+  const applyLanguage = (next) => {
+    languageRef.current = next;
+    setLanguageState(next);
+    storeLanguage(next);
+    const mode = next.code === "en" ? null : { lang: next.code, langName: next.name };
+    translationModeRef.current = mode;
+    setTranslationMode(mode);
+    tooltipCacheRef.current = {}; // cached translations belong to the previous language
   };
 
-  // Update the last detected language ref whenever the AI signals a language via [LANG:xx].
-  const applyDetectedLanguage = (detectedLanguage) => {
-    if (!detectedLanguage) return;
-    lastDetectedLanguageRef.current = detectedLanguage;
-
-    const formLangCode = FORM_LANG_TO_BCP47[formLanguageRef.current] || "en";
-
-    if (detectedLanguage === formLangCode) {
-      if (translationModeRef.current) {
-        translationModeRef.current = null;
-        setTranslationMode(null);
-      }
-    } else if (translationModeRef.current && translationModeRef.current.lang !== detectedLanguage) {
-      const langName = (() => {
-        try { return new Intl.DisplayNames(["en"], { type: "language" }).of(detectedLanguage) || detectedLanguage; }
-        catch { return detectedLanguage; }
-      })();
-      const newMode = { lang: detectedLanguage, langName };
-      translationModeRef.current = newMode;
-      setTranslationMode(newMode);
-      tooltipCacheRef.current = {};
-    }
-  };
+  // Restore the stored choice on first mount (localStorage is read before the first paint).
+  useEffect(() => {
+    applyLanguage(languageRef.current);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Translate a widget-generated string into the most recently detected language
   const wt = (key, ...args) => {
-    const lang = lastDetectedLanguageRef.current || "en";
+    const lang = languageRef.current?.code || "en";
     const val = (WIDGET_STRINGS[lang] || WIDGET_STRINGS.en)[key] ?? WIDGET_STRINGS.en[key] ?? key;
     return typeof val === "function" ? val(...args) : val;
   };
@@ -895,47 +878,6 @@ export default function AIChatWidget() {
     };
   }, [isOpen, currentScreenId]);
 
-  // Cycle the language banner text every 3.5 s with a fade-out/fade-in transition.
-  useEffect(() => {
-    const id = setInterval(() => {
-      setBannerFading(true);
-      setTimeout(() => {
-        setBannerIdx((i) => (i + 1) % LANGUAGES.length);
-        setBannerFading(false);
-      }, 320);
-    }, 3500);
-    return () => clearInterval(id);
-  }, [assistantMode]);
-
-  // Detect the natural language of the form from its field labels and descriptions.
-  const detectFormLanguage = (ctx) => {
-    const fields = ctx?.currentState?.fields || [];
-    const text = [
-      ctx?.screenName || "",
-      ctx?.description || "",
-      ...fields.map((f) => `${f.label || ""} ${f.description || ""} ${f.placeholder || ""}`),
-    ].join(" ");
-    const len = text.replace(/\s/g, "").length || 1;
-
-    if ((text.match(/[\u0600-\u06FF]/g) || []).length / len > 0.12) return "Arabic";
-    if ((text.match(/[\u4E00-\u9FFF]/g) || []).length / len > 0.12) return "Chinese";
-    if ((text.match(/[\u3040-\u30FF]/g) || []).length / len > 0.12) return "Japanese";
-    if ((text.match(/[\uAC00-\uD7AF]/g) || []).length / len > 0.12) return "Korean";
-    if ((text.match(/[\u0400-\u04FF]/g) || []).length / len > 0.12) return "Russian";
-    if ((text.match(/[\u0590-\u05FF]/g) || []).length / len > 0.12) return "Hebrew";
-    if ((text.match(/[\u0E00-\u0E7F]/g) || []).length / len > 0.12) return "Thai";
-    if ((text.match(/[\u0900-\u097F]/g) || []).length / len > 0.12) return "Hindi";
-
-    const tl = text.toLowerCase();
-    if (/\b(nombre|empresa|dirección|ciudad|país|fecha|teléfono|correo|apellido)\b/.test(tl)) return "Spanish";
-    if (/\b(nom|prénom|adresse|entreprise|ville|pays|téléphone|courriel|date)\b/.test(tl)) return "French";
-    if (/\b(nome|empresa|endereço|cidade|estado|país|telefone|cpf|cnpj)\b/.test(tl)) return "Portuguese";
-    if (/\b(vorname|nachname|unternehmen|anschrift|straße|stadt|land|telefon|datum)\b/.test(tl)) return "German";
-    if (/\b(nome|azienda|indirizzo|città|paese|telefono|codice fiscale|data)\b/.test(tl)) return "Italian";
-
-    return "English";
-  };
-
   // Show greeting only on very first open (empty transcript).
   useEffect(() => {
     if (!isOpen || messages.length !== 0) return;
@@ -944,9 +886,7 @@ export default function AIChatWidget() {
     const screenName = ctx?.screenName || "this screen";
 
     if (assistantMode === "applicant") {
-      const detectedLang = detectFormLanguage(ctx);
-      formLanguageRef.current = detectedLang;
-      if (detectedLang !== "English") lastDetectedLanguageRef.current = detectedLang.toLowerCase().slice(0, 2);
+      const detectedLang = languageRef.current.name;
 
       const stepInfo = ctx?.currentState?.currentStep != null
         ? ` — Step ${ctx.currentState.currentStep + 1} of ${ctx.currentState.totalSteps}`
@@ -1161,7 +1101,6 @@ export default function AIChatWidget() {
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "AI request failed");
-      applyDetectedLanguage(data.detectedLanguage);
       if (data.type === "tool_call") {
         // Guard: if the screen changed since the AI was sent this context, discard the tool call.
         const postToolCtx = getScreenContext();
@@ -1786,13 +1725,12 @@ export default function AIChatWidget() {
           ctx,
           assistantMode,
           currentState: enrichedCurrentState,
-          formLanguage: formLanguageRef.current,
+          language: languageRef.current,
         })),
       });
 
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "AI request failed");
-      applyDetectedLanguage(data.detectedLanguage);
 
       if (data.type === "tool_call") {
         await applyToolCall(data.tool, data.args, history);
@@ -1876,8 +1814,8 @@ export default function AIChatWidget() {
           onHeaderMouseDown={onHeaderMouseDown}
           onResizeMouseDown={onResizeMouseDown}
           onClose={handleClosePanel}
-          bannerIdx={bannerIdx}
-          bannerFading={bannerFading}
+          language={language}
+          onLanguageChange={applyLanguage}
           messagesContainerRef={messagesContainerRef}
           messages={messages}
           isLoading={isLoading}
