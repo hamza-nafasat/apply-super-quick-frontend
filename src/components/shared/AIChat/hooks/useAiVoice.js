@@ -4,7 +4,7 @@ import { SERVER_URL } from "../constants/aiChatConstants.js";
 /**
  * Speech recognition (PTT) and text-to-speech for the AI chat widget.
  */
-export function useAiVoice({ assistantMode, voice, sendMessageRef }) {
+export function useAiVoice({ assistantMode, voice, sendMessageRef, getLanguageCode }) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
@@ -25,7 +25,8 @@ export function useAiVoice({ assistantMode, voice, sendMessageRef }) {
     const rec = new SpeechRecognition();
     rec.continuous = false;
     rec.interimResults = false;
-    rec.lang = "en-US";
+    // Dictate in the language chosen in the selector, so speech input matches the chat.
+    rec.lang = getLanguageCode?.() || "en-US";
     rec.onresult = (e) => {
       const transcript = e.results[0][0].transcript.trim();
       setIsListening(false);

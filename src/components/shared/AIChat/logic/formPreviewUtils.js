@@ -27,11 +27,13 @@ export const toPreviewSection = (s, overrides = {}) => ({
 
 const f = (label, type = "text", required = true, extra = {}) => ({ label, type, required, ...extra });
 
-// Screens the applicant completes before the stepper, in order.
+// Screens the applicant completes before the stepper, in order. Email Verification and the
+// ID Verification QR scan are deliberately absent — they carry no form fields to review, so
+// they are skipped in the preview even when the form defines them as sections.
+const SKIPPED_IN_PREVIEW = ["otp_blk", "id_mission_blk"];
+
 const PRE_STEPPER_SECTIONS = [
-  { sectionTitle: "otp_blk", sectionName: "Email Verification", fields: [] },
   { sectionTitle: "company_scraping_blk", sectionName: "Company Lookup", fields: [] },
-  { sectionTitle: "id_mission_blk", sectionName: "Identity Verification", fields: [] },
   {
     sectionTitle: "id_mission_details_blk",
     sectionName: "Identity Verification — Personal Details",
@@ -69,7 +71,7 @@ const ADDITIONAL_OWNER_FIELDS = [
 ];
 
 // The applicant's system steps, in the order they are completed.
-const SYSTEM_STEP_ORDER = ["otp_blk", "company_scraping_blk", "id_mission_blk", "id_mission_details_blk"];
+const SYSTEM_STEP_ORDER = ["company_scraping_blk", "id_mission_details_blk"];
 
 // The hidden companion section the CSV parser creates; it holds the real fields of one
 // additional-owner row, so the repeating block shows the form's own list, not a guess.
@@ -89,7 +91,7 @@ const withStepperStatics = (section, ownerRowFields) => {
  */
 export const buildFullPreviewSections = (detailedForm) => {
   const raw = detailedForm?.sections || [];
-  const sections = raw.map((s) => toPreviewSection(s));
+  const sections = raw.map((s) => toPreviewSection(s)).filter((s) => !SKIPPED_IN_PREVIEW.includes(s.sectionTitle));
 
   const ownerRowSection = raw.find((s) => s.key === ADDITIONAL_OWNERS_SECTION_KEY);
   const ownerRowFields = ownerRowSection?.fields?.length

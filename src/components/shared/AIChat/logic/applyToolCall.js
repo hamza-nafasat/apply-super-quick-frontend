@@ -2,6 +2,7 @@ import { findAiFieldEl } from "@/lib/discoverFormFields.js";
 import { PAGE_LABELS, PAGE_ROUTES, SERVER_URL } from "../constants/aiChatConstants.js";
 
 import { buildFullPreviewSections, toPreviewSection } from "./formPreviewUtils.js";
+import { buildChatPayload } from "../utils/buildChatPayload.js";
 
 // Guided mode and AI-driven language switching are both gone: the applicant
 // assistant answers questions and calls nothing.
@@ -16,6 +17,7 @@ export function createApplyToolCall(bindings) {
   const {
     getScreenContext,
     assistantMode,
+    languageRef,
     addMessage,
     isVoiceModeRef,
     speak,
@@ -225,17 +227,11 @@ export function createApplyToolCall(bindings) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            messages: followUpHistory,
-            context: {
-              screenId: ctx?.screenId,
-              screenName: ctx?.screenName,
-              description: ctx?.description,
-              currentState: ctx?.currentState,
-              logos: ctx?.logos,
-              colorPalette: ctx?.colorPalette || undefined,
-            },
-          }),
+          // Built through buildChatPayload so this follow-up carries the selected
+          // language too — a hand-rolled context used to answer in English.
+          body: JSON.stringify(
+            buildChatPayload({ messages: followUpHistory, ctx, language: languageRef?.current }),
+          ),
         });
         const aiData = await aiRes.json();
         if (!aiData.success) throw new Error(aiData.message || "AI request failed");

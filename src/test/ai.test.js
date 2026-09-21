@@ -509,10 +509,41 @@ describe("components/shared/AIChat · language selection", () => {
 
   it("remembers the choice and sends it with every request", () => {
     assert.match(widget, /storeLanguage\(next\);/);
-    assert.match(widget, /language: languageRef\.current,/);
+    // Every buildChatPayload call must carry the language — including the follow-up
+    // request made after a tool call, which used to answer in English without it.
+    const calls = widget.match(/buildChatPayload\(\{[\s\S]*?\}\)/g) || [];
+    assert.ok(calls.length >= 2, "expected the send and tool-continuation call sites");
+    for (const call of calls) assert.match(call, /language: languageRef\.current/, call);
     assert.match(
       read("components/shared/AIChat/utils/buildChatPayload.js"),
       /context\.language = \{ code: language\.code, name: language\.name \};/,
+    );
+  });
+
+  it("carries the language on the tool-call follow-up requests too", () => {
+    const calls = tools.match(/buildChatPayload\(\{[\s\S]*?\}\)/g) || [];
+    assert.ok(calls.length >= 1, "the branding follow-up must use buildChatPayload");
+    for (const call of calls) assert.match(call, /language: languageRef\?\.current/, call);
+    assert.doesNotMatch(tools, /body: JSON\.stringify\(\{\s*messages: followUpHistory/);
+  });
+
+  it("translates the widget's own greeting and strings into the selected language", () => {
+    const translator = read("components/shared/AIChat/utils/uiTranslator.js");
+    // One batched request per language, cached in localStorage; English costs nothing.
+    assert.match(translator, /if \(!code \|\| code === "en"\) return \{\};/);
+    assert.match(translator, /texts: missing, targetLang: code, targetLangName: language\.name/);
+    assert.match(translator, /CACHE_PREFIX \+ code/);
+    // Greeting goes through the translator; widget strings fall back to the cache.
+    assert.match(widget, /greetInSelectedLanguage\(content/);
+    assert.match(widget, /translateUiText\(content, next\)/);
+    assert.match(widget, /return uiStringsRef\.current\[english\] \|\| english;/);
+  });
+
+  it("dictates speech input in the selected language", () => {
+    assert.match(widget, /getLanguageCode: \(\) => languageRef\.current\?\.code/);
+    assert.match(
+      read("components/shared/AIChat/hooks/useAiVoice.js"),
+      /rec\.lang = getLanguageCode\?\.\(\) \|\| "en-US";/,
     );
   });
 
@@ -658,10 +689,10 @@ describe("components/shared/AIChat · applyToolCall · AI-mode admin flows", () 
     assert.match(branch, /formPreview: preview/);
     const utils = read("components/shared/AIChat/logic/formPreviewUtils.js");
     // System steps render in completion order even when the form defines its own.
-    assert.match(
-      utils,
-      /SYSTEM_STEP_ORDER = \["otp_blk", "company_scraping_blk", "id_mission_blk", "id_mission_details_blk"\]/,
-    );
+    assert.match(utils, /SYSTEM_STEP_ORDER = \["company_scraping_blk", "id_mission_details_blk"\]/);
+    // Email Verification and the ID Verification QR step carry no fields — never previewed.
+    assert.match(utils, /SKIPPED_IN_PREVIEW = \["otp_blk", "id_mission_blk"\]/);
+    assert.match(utils, /\.filter\(\(s\) => !SKIPPED_IN_PREVIEW\.includes\(s\.sectionTitle\)\)/);
     assert.match(utils, /SYSTEM_STEP_ORDER\.map\([\s\S]{0,200}byTitle\.get\(title\)/);
     // The owner block shows the form's own stored owner fields, not a hard-coded guess.
     assert.match(utils, /ADDITIONAL_OWNERS_SECTION_KEY = "additional_owners_information"/);

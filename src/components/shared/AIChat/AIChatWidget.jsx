@@ -19,6 +19,7 @@ import {
 } from "./constants/aiChatConstants.js";
 import { useAiVoice } from "./hooks/useAiVoice.js";
 import { WIDGET_STRINGS } from "./constants/widgetStrings.js";
+import { translateUiText, translateUiTexts } from "./utils/uiTranslator.js";
 import { readStoredLanguage, storeLanguage } from "./constants/languages.js";
 import { createApplyToolCall } from "./logic/applyToolCall.js";
 import ChatFab from "./components/ChatFab.jsx";
@@ -93,6 +94,8 @@ export default function AIChatWidget() {
     assistantMode,
     voice,
     sendMessageRef,
+    // Read at listen time: languageRef is declared just below and is always current.
+    getLanguageCode: () => languageRef.current?.code,
   });
 
   // The language chosen in the chat's language selector — the single source of truth for
@@ -167,7 +170,6 @@ export default function AIChatWidget() {
   isOpenRef.current = isOpen;
   const suppressNextScreenGreetingRef = useRef(false); // set by tool calls that handle their own transition message
   const initialGreetingShownRef = useRef(false); // prevents double-greeting when endpoint change clears messages mid-session
-  // Tracks the most recently detected language (from AI [LANG:xx] tags) for widget string translation
   const fabRef = useRef(null);          // ref to the floating action button
   const [fabNudged, setFabNudged] = useState(false); // true when FAB is dodging an overlapping element
   const [introButtonsDismissed, setIntroButtonsDismissed] = useState(false);
@@ -734,6 +736,10 @@ export default function AIChatWidget() {
 
   // Applying a language choice: remember it, and mirror it into translation mode so
   // hovering page text translates into the same language (English needs no translation).
+  // The widget writes its own strings (errors, acknowledgements), so they are translated
+  // once per language and kept here; hand-written translations still win when they exist.
+  const uiStringsRef = useRef({});
+
   const applyLanguage = (next) => {
     languageRef.current = next;
     setLanguageState(next);
@@ -742,6 +748,13 @@ export default function AIChatWidget() {
     translationModeRef.current = mode;
     setTranslationMode(mode);
     tooltipCacheRef.current = {}; // cached translations belong to the previous language
+    uiStringsRef.current = {};
+    if (next.code !== "en") {
+      const sources = Object.values(WIDGET_STRINGS.en).filter((v) => typeof v === "string");
+      translateUiTexts(sources, next).then((map) => {
+        if (languageRef.current.code === next.code) uiStringsRef.current = map;
+      });
+    }
   };
 
   // Restore the stored choice on first mount (localStorage is read before the first paint).
@@ -752,8 +765,12 @@ export default function AIChatWidget() {
   // Translate a widget-generated string into the most recently detected language
   const wt = (key, ...args) => {
     const lang = languageRef.current?.code || "en";
-    const val = (WIDGET_STRINGS[lang] || WIDGET_STRINGS.en)[key] ?? WIDGET_STRINGS.en[key] ?? key;
-    return typeof val === "function" ? val(...args) : val;
+    const hand = WIDGET_STRINGS[lang]?.[key];
+    if (hand) return typeof hand === "function" ? hand(...args) : hand;
+    const english = WIDGET_STRINGS.en[key] ?? key;
+    // Functions build their text from arguments, so they stay English until translated live.
+    if (typeof english === "function") return english(...args);
+    return uiStringsRef.current[english] || english;
   };
 
   // Fit the panel to the viewport whenever it opens so the input stays on screen.
@@ -878,6 +895,19 @@ export default function AIChatWidget() {
     };
   }, [isOpen, currentScreenId]);
 
+  // Posts a widget-written greeting in the selected language. `alreadyTranslated` is the
+  // hand-written greeting for that language, if one was used — no round trip needed then.
+  const greetInSelectedLanguage = (content, alreadyTranslated) => {
+    const next = languageRef.current;
+    if (next.code === "en" || (alreadyTranslated && content === alreadyTranslated)) {
+      addMessage({ role: "assistant", content });
+      return;
+    }
+    translateUiText(content, next).then((translated) => {
+      addMessage({ role: "assistant", content: translated });
+    });
+  };
+
   // Show greeting only on very first open (empty transcript).
   useEffect(() => {
     if (!isOpen || messages.length !== 0) return;
@@ -906,11 +936,13 @@ export default function AIChatWidget() {
       const content = ctx?.greeting || greetings[detectedLang] ||
         `Hi! I'm your **application assistant**.\n\nYou're currently on **${screenName}**${stepInfo}.\n\nHere's what I can do:\n- **Answer questions** about any field or requirement\n- **Explain what's needed** for each section\n- **Scroll to any field** if you're not sure where to find it\n- **Communicate in any language** — just start typing in yours\n\nFeel free to ask me anything!`;
       setIntroButtonsDismissed(true);
-      addMessage({ role: "assistant", content });
+      // The greeting is widget-written, so it needs translating into the selected language
+      // (a no-op for English, and for a language with a hand-written greeting above).
+      greetInSelectedLanguage(content, greetings[detectedLang]);
     } else {
       const content = ctx?.greeting ||
         `Hi! I'm your assistant. I can see you're working on **${screenName}**.\n\nWhat would you like to do?`;
-      addMessage({ role: "assistant", content });
+      greetInSelectedLanguage(content);
     }
     initialGreetingShownRef.current = true;
     lastAnnouncedScreenIdRef.current = ctx?.screenId ?? null;
@@ -1097,7 +1129,11 @@ export default function AIChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(buildChatPayload({ messages: toolResultHistory, ctx, assistantMode })),
+        // The language must travel with every request, follow-ups included — without it the
+        // model gets no language rule and answers in English.
+        body: JSON.stringify(
+          buildChatPayload({ messages: toolResultHistory, ctx, language: languageRef.current }),
+        ),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.message || "AI request failed");
@@ -1400,6 +1436,7 @@ export default function AIChatWidget() {
   const applyToolCall = createApplyToolCall({
     getScreenContext,
     assistantMode,
+    languageRef,
     addMessage,
     isVoiceModeRef,
     speak,
