@@ -1,7 +1,7 @@
 import { findAiFieldEl } from "@/lib/discoverFormFields.js";
 import { PAGE_LABELS, PAGE_ROUTES, SERVER_URL } from "../constants/aiChatConstants.js";
 
-import { toPreviewSection } from "./formPreviewUtils.js";
+import { buildFullPreviewSections, toPreviewSection } from "./formPreviewUtils.js";
 
 const APPLICANT_ALLOWED_TOOLS = new Set(["enterTranslationMode"]);
 
@@ -1671,7 +1671,17 @@ export function createApplyToolCall(bindings) {
 
     if (tool === "previewFormStructure") {
       const { formName, sections, explanation } = args;
-      addMessage({ role: "assistant", content: explanation, formPreview: { formName, sections } });
+      // Prefer the real loaded form so the preview shows exactly what the applicant sees —
+      // every section plus the static stepper screens. AI-supplied sections are the fallback
+      // for a CSV design that has not been saved as a form yet.
+      const loadedForm = ctx.currentState?.detailedForm;
+      const preview = loadedForm
+        ? {
+            formName: loadedForm.name || loadedForm.headerText || formName,
+            sections: buildFullPreviewSections(loadedForm),
+          }
+        : { formName, sections };
+      addMessage({ role: "assistant", content: explanation, formPreview: preview });
       if (isVoiceModeRef.current) speak(explanation);
       return;
     }

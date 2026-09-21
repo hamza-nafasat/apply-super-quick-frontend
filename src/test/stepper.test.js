@@ -905,11 +905,12 @@ describe("stepper · ownership", () => {
   );
 
   it(
-    '[QA 5.14] requires at least one owner with the "primary operator" or "both" role before Next',
+    "[QA 5.14] counts any filled-in additional owner as an operator, whatever their role",
     () => {
-      // The applicant's own role is already checked; an ADDED owner's role is not.
+      // Adding someone to the additional-owners list (name + email) means an operator exists.
       const rule = between(src, "let isOperatorExist", "At least one primary operator required");
-      assert.match(rule, /owners\.some\(\(o\) =>[\s\S]{0,160}getOwnerVal\(o, "role"\)/);
+      assert.match(rule, /owners\.some\(\(o\) =>[\s\S]{0,160}getOwnerVal\(o, "name"\)[\s\S]{0,60}getOwnerVal\(o, "email"\)/);
+      assert.doesNotMatch(rule, /includes\(getOwnerVal\(o, "role"\)\)/);
     },
   );
 

@@ -1,7 +1,7 @@
 // Visual preview of an application form derived from a CSV structure.
 // Rendered inside the AI chat when the AI calls the previewFormStructure tool.
 
-const SYSTEM_BLOCKS = new Set(["otp_blk", "company_scraping_blk", "id_mission_blk"]);
+const SYSTEM_BLOCKS = new Set(["otp_blk", "company_scraping_blk", "id_mission_blk", "id_mission_details_blk"]);
 
 // ── Field mockup ──────────────────────────────────────────────────────────────
 
@@ -99,8 +99,15 @@ const FieldMockup = ({ field }) => {
       break;
     case "block":
       return (
-        <div className="rounded border border-dashed border-blue-200 bg-blue-50 px-2 py-1.5 text-[10px] text-blue-500">
-          + {label} (repeating block)
+        <div className="rounded border border-dashed border-blue-200 bg-blue-50 px-2 py-1.5">
+          <p className="text-[10px] font-medium text-blue-600">+ {label} (repeating block)</p>
+          {field.blockFields?.length > 0 && (
+            <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-2 rounded bg-white/70 p-1.5">
+              {field.blockFields.map((bf, i) => (
+                <FieldMockup key={i} field={bf} />
+              ))}
+            </div>
+          )}
         </div>
       );
     default:
@@ -197,10 +204,10 @@ const AgreementSection = ({ section }) => (
   </SectionCard>
 );
 
-const StandardSection = ({ section }) => (
+const StandardSection = ({ section, badge }) => (
   <SectionCard
     section={section}
-    badge={section.isHidden ? "Hidden — Underwriting" : section.isBlock ? "Block" : "Section"}
+    badge={badge || (section.isHidden ? "Hidden — Underwriting" : section.isBlock ? "Block" : "Section")}
   >
     {section.displayText && <p className="mb-2 text-[10px] text-gray-500 italic">{section.displayText}</p>}
     {section.fields?.length > 0 ? (
@@ -260,12 +267,14 @@ export default function FormPreview({ formName, sections }) {
           if (t === "otp_blk") return <OtpSection key={i} section={section} />;
           if (t === "company_scraping_blk") return <CompanyScrapingSection key={i} section={section} />;
           if (t === "id_mission_blk") return <IdMissionSection key={i} section={section} />;
+          if (t === "id_mission_details_blk")
+            return <StandardSection key={i} section={section} badge="System Step" />;
           if (t === "agreement_blk") return <AgreementSection key={i} section={section} />;
           return <StandardSection key={i} section={section} />;
         })}
       </div>
       <p className="mt-2 text-[9px] text-gray-400 text-center">
-        Visual approximation — actual styling reflects the applied branding
+        Full applicant view — every step and field, including system steps. Styling reflects the applied branding.
       </p>
     </div>
   );

@@ -640,7 +640,13 @@ describe("components/shared/AIChat · applyToolCall · AI-mode admin flows", () 
   });
 
   it("[QA 4.3] renders the form preview inside the chat", () => {
-    assert.match(blockOf(tools, 'if (tool === "previewFormStructure") {'), /formPreview: \{ formName, sections \}/);
+    const branch = blockOf(tools, 'if (tool === "previewFormStructure") {');
+    // The preview is built from the live form so it matches what the applicant actually sees.
+    assert.match(branch, /buildFullPreviewSections\(loadedForm\)/);
+    assert.match(branch, /formPreview: preview/);
+    const utils = read("components/shared/AIChat/logic/formPreviewUtils.js");
+    assert.match(utils, /otp_blk[\s\S]{0,400}id_mission_details_blk/);
+    assert.match(utils, /BENEFICIAL_STATIC_FIELDS[\s\S]{0,200}ADDITIONAL_OWNER_FIELDS/);
     assert.match(read("components/shared/AIChat/ChatMessage.jsx"), /<FormPreview formName=\{message\.formPreview\.formName\}/);
   });
 
