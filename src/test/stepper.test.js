@@ -1158,3 +1158,59 @@ describe("stepper · page layout", () => {
     },
   );
 });
+
+describe("signature · signed-by", () => {
+  const box = read("components/shared/SignatureBox.jsx");
+
+  it("shows who signed and when, from the section's existing updatedBy/updatedAt", () => {
+    const shape = read("utils/signatureShape.js");
+    assert.match(shape, /const by = sectionData\?\.updatedBy;/);
+    assert.match(shape, /at: sectionData\?\.updatedAt/);
+    assert.match(box, /\{isSaved && \(signedNow \|\| signedBy\) && \(/);
+  });
+
+  it("shows the signer the moment Save is clicked, before the section itself is saved", () => {
+    assert.match(box, /setSignedNow\(\{\n\s*name: \[user\?\.firstName, user\?\.lastName\]/);
+    assert.match(box, /formatSignedBy\(signedNow \|\| signedBy\)/);
+    assert.match(box, /setClearedSaved\(true\);\n\s*setSignedNow\(null\);/);
+  });
+
+  it("stores a date with the ID Mission signer, like every other section", () => {
+    assert.match(
+      read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx"),
+      /\.\.\.idMissionVerifiedData,\n[^\n]*\n\s*updatedAt: new Date\(\)\.toISOString\(\),\n\s*updatedBy:/,
+    );
+  });
+
+  it("disables Save once saved, and Clear re-enables it and hides the signed-by line", () => {
+    assert.match(box, /disabled=\{isSaving \|\| isSaved\}/);
+    assert.match(box, /const isSaved = !!oldSignatureUrl && !clearedSaved;/);
+    assert.match(box, /setTypedSignature\(""\);\n\s*setClearedSaved\(true\);/);
+    assert.match(box, /await onSave\?\.\(file, setIsSaving\);\n\s*setClearedSaved\(false\);/);
+  });
+
+  it("passes the signer on every presentation of a signature", () => {
+    const files = [
+      "components/applicationVerification/AggrementBlock.jsx",
+      "components/applicationVerification/ApplicationPdfForm/AgreementBlockPdf.jsx",
+      "components/applicationVerification/ApplicationPdfForm/CompanyOwnersPdf.jsx",
+      "page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx",
+    ];
+    for (const f of files) assert.match(read(f), /signedBy=\{getSignedBy\(/, f);
+  });
+
+  it("includes the signer in the ID Mission page's own download too", () => {
+    assert.match(
+      read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx"),
+      /signedBy: \(\) =>\n[^\n]*data-signed-by[^\n]*\n\s*getSignedBy\(idMissionVerifiedData\)/,
+    );
+  });
+
+  it("adds the signed-by line under the signature in Download this page", () => {
+    assert.match(read("utils/buildPagePdf.js"), /if \(signedByLine\) content\.push/);
+    assert.match(
+      read("page/admin/userApplicationForms/ApplicationVerification/ApplicationForm.jsx"),
+      /querySelector\("\[data-signed-by\]"\)\?\.getAttribute\("data-signed-by"\) \|\|\n\s*getSignedBy\(formData\?\.\[currentSection\?\.key\]\)/,
+    );
+  });
+});

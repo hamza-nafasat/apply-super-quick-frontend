@@ -7,7 +7,7 @@ import { additionalOwnersFields, FIELD_TYPES, formFieldsStaticKeys } from "@/dat
 import { useEnterToNextField } from "@/hooks/useEnterToNextField";
 import { useGetAllSearchStrategiesQuery, useUpdateFormSectionMutation } from "@/redux/apis/formApis";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { X } from "lucide-react";
 import { Autocomplete } from "@react-google-maps/api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -715,6 +715,7 @@ function CompanyOwners({
                   onSave={signatureUploadHandler}
                   step={step}
                   oldSignatureUrl={getSignatureUrl(form?.signature)}
+                  signedBy={getSignedBy(reduxData)}
                 />
               )}
             </div>

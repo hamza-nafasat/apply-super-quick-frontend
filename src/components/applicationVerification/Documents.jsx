@@ -2,7 +2,7 @@ import DisplayText from "@/components/shared/DisplayText";
 import { useEnterToNextField } from "@/hooks/useEnterToNextField";
 import { useFormateTextInMarkDownMutation, useUpdateFormSectionMutation } from "@/redux/apis/formApis";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import DOMPurify from "dompurify";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -424,6 +424,7 @@ function Documents({
             step={step}
             onSave={signatureUploadHandler}
             oldSignatureUrl={getSignatureUrl(form?.signature)}
+            signedBy={getSignedBy(reduxData)}
           />
         )}
       </div>

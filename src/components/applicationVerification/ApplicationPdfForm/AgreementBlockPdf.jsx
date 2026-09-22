@@ -1,4 +1,5 @@
 import { updateFormState } from "@/redux/slices/formSlice";
+import { getSignedBy } from "@/utils/signatureShape";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
@@ -73,6 +74,7 @@ function AggrementBlockPdf({ name, step, isSignature, formInnerData, setFormInne
               step={step}
               onSave={signatureUploadHandler}
               oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+              signedBy={getSignedBy(formInnerData?.[sectionKey])}
               isPdf={true}
             />
           </>

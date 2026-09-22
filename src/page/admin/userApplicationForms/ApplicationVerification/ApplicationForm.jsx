@@ -1,4 +1,5 @@
 import AggrementBlock from "@/components/applicationVerification/AggrementBlock";
+import { getSignedBy } from "@/utils/signatureShape";
 import BankInfo from "@/components/applicationVerification/BankInfo";
 import CompanyInformation from "@/components/applicationVerification/CompanyInformation";
 import CompanyOwners from "@/components/applicationVerification/CompanyOwners";
@@ -384,6 +385,11 @@ export default function ApplicationForm() {
     userName: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || null,
     userEmail: user?.email || null,
     signDisplayHtml: currentSection?.signDisplayFormattedText || null,
+    // Read the live signed-by line first, like the signature image below: a signature saved
+    // before Next exists on the page but not yet in the saved section data.
+    signedBy: () =>
+      stepContainerRef.current?.querySelector("[data-signed-by]")?.getAttribute("data-signed-by") ||
+      getSignedBy(formData?.[currentSection?.key]),
     getFieldRows: () => {
       if (!stepContainerRef.current) return [];
       const rows = [];

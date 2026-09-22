@@ -1,3 +1,4 @@
+import { formatSignedBy } from "@/utils/signatureShape";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Button from "./small/Button";
 import { AiHelpModal } from "./small/DynamicField";
@@ -7,12 +8,20 @@ import { makeDocLinkHandler } from "@/lib/makeDocLinkHandler";
 import { useBranding } from "@/hooks/BrandingContext";
 import { useSelector } from "react-redux";
 
-export default function SignatureBox({ onSave, step, oldSignatureUrl, className = "", isPdf = false }) {
+export default function SignatureBox({ onSave, step, oldSignatureUrl, signedBy = null, className = "", isPdf = false }) {
   const { isDisabledAllFields } = useSelector((state) => state.form);
+  const { user } = useSelector((state) => state.auth);
   const { textColor, fontFamily } = useBranding();
   const [mode, setMode] = useState("draw");
   const [typedSignature, setTypedSignature] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  // Clearing a saved signature re-opens it for signing: Save comes back and the signed-by
+  // line goes away until the new signature is saved (which regenerates it).
+  const [clearedSaved, setClearedSaved] = useState(false);
+  // Who signed, captured at the moment of Save. Steps persist the section (and its updatedBy)
+  // only on Next, so the saved data can't be relied on right after signing.
+  const [signedNow, setSignedNow] = useState(null);
+  const isSaved = !!oldSignatureUrl && !clearedSaved;
   const [openAiHelpModal, setOpenAiHelpModal] = useState(false);
   const [pendingAiFill, setPendingAiFill] = useState(false);
   const [openDoc, setOpenDoc] = useState(null); // { url, title } | null
@@ -157,6 +166,8 @@ export default function SignatureBox({ onSave, step, oldSignatureUrl, className 
     const rect = canvasRef.current.getBoundingClientRect();
     ctxRef.current.clearRect(0, 0, rect.width, rect.height);
     setTypedSignature("");
+    setClearedSaved(true);
+    setSignedNow(null);
   };
 
   // const undo = () => {
@@ -192,13 +203,19 @@ export default function SignatureBox({ onSave, step, oldSignatureUrl, className 
       if (dataUrl) {
         const file = dataURLtoFile(dataUrl, "signature.png");
         await onSave?.(file, setIsSaving);
+        setClearedSaved(false);
+        setSignedNow({
+          name: [user?.firstName, user?.lastName].filter(Boolean).join(" "),
+          email: user?.email || "",
+          at: new Date().toISOString(),
+        });
         setMode("draw");
       }
     } catch (err) {
       console.error("Error is Handle save signature box", err);
       setIsSaving(false);
     }
-  }, [generateSignatureData, onSave]);
+  }, [generateSignatureData, onSave, user]);
 
   useEffect(() => {
     setupCanvas();
@@ -340,6 +357,17 @@ export default function SignatureBox({ onSave, step, oldSignatureUrl, className 
         )}
       </div>
 
+      {/* Signed-by: shown wherever this signature is presented, until it is cleared to re-sign */}
+      {isSaved && (signedNow || signedBy) && (
+        <p
+          className="mt-2 text-sm text-gray-600"
+          data-testid="signature-signed-by"
+          data-signed-by={formatSignedBy(signedNow || signedBy)}
+        >
+          {formatSignedBy(signedNow || signedBy)}
+        </p>
+      )}
+
       {/* Controls */}
       {!(isPdf && isDisabledAllFields) && (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -355,7 +383,9 @@ export default function SignatureBox({ onSave, step, oldSignatureUrl, className 
           <button
             type="button"
             onClick={handleSave}
-            className={`${buttonClasses} bg-primary text-buttonTextPrimary ml-auto ${isSaving ? "pointer-events-none opacity-30" : ""}`}
+            disabled={isSaving || isSaved}
+            title={isSaved ? "Signature saved — use Clear to sign again" : undefined}
+            className={`${buttonClasses} bg-primary text-buttonTextPrimary ml-auto ${isSaving || isSaved ? "pointer-events-none opacity-30" : ""}`}
           >
             {isSaving ? "Saving..." : "Save Signature"}
           </button>

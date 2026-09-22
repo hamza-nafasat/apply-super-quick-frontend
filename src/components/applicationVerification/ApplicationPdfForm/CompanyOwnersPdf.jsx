@@ -1,4 +1,5 @@
 import { toLookupArray } from "@/lib/utils";
+import { getSignedBy } from "@/utils/signatureShape";
 import TextField from "@/components/shared/small/TextField";
 import { additionalOwnersFields, FIELD_TYPES, formFieldsStaticKeys } from "@/data/constants";
 import { STATE_SUGGESTIONS } from "@/constants/constants";
@@ -616,6 +617,7 @@ function CompanyOwnersPdf({ name, reduxData, fields, step, isSignature, formInne
                   step={step}
                   isPdf={true}
                   oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+                  signedBy={getSignedBy(formInnerData?.[sectionKey])}
                 />
               )}
             </div>

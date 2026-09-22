@@ -1,4 +1,5 @@
 import { toLookupArray } from "@/lib/utils";
+import { getSignedBy } from "@/utils/signatureShape";
 import { naicsToMcc } from "../../../../public/NAICStoMCC.js";
 import { FIELD_TYPES } from "@/data/constants";
 import { STATE_SUGGESTIONS } from "@/constants/constants.js";
@@ -392,6 +393,7 @@ function CompanyInformationPdf({
                 onSave={signatureUploadHandler}
                 step={step}
                 oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+                signedBy={getSignedBy(formInnerData?.[sectionKey])}
               />
             )}
           </div>

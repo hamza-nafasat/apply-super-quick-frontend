@@ -18,7 +18,7 @@ import Modal from "../shared/small/Modal";
 import CustomizationFieldsModal from "./companyInfo/CustomizationFieldsModal";
 import SignatureBox from "../shared/SignatureBox";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { toast } from "react-toastify";
 
 function ProcessingInfo({
@@ -258,6 +258,7 @@ function ProcessingInfo({
             step={step}
             onSave={signatureUploadHandler}
             oldSignatureUrl={getSignatureUrl(form?.signature)}
+            signedBy={getSignedBy(reduxData)}
           />
         )}
       </div>

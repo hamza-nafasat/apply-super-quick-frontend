@@ -1,4 +1,5 @@
 import { toLookupArray } from "@/lib/utils";
+import { getSignedBy } from "@/utils/signatureShape";
 import { FIELD_TYPES } from "@/data/constants";
 import { useGetBankLookupMutation } from "@/redux/apis/formApis";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
@@ -303,6 +304,7 @@ function BankInfoPdf({ name, fields, step, isSignature, formInnerData, setFormIn
             isPdf={true}
             onSave={signatureUploadHandler}
             oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+            signedBy={getSignedBy(formInnerData?.[sectionKey])}
           />
         )}
       </div>

@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CgSpinner } from "react-icons/cg";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getSignatureUrl, isSignatureComplete, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { naicsToMcc } from "../../../public/NAICStoMCC.js";
 import SignatureBox from "../shared/SignatureBox.jsx";
 import Button from "../shared/small/Button.jsx";
@@ -593,6 +593,7 @@ function CompanyInformation({
                 onSave={signatureUploadHandler}
                 step={step}
                 oldSignatureUrl={getSignatureUrl(form?.signature)}
+                signedBy={getSignedBy(reduxData)}
               />
             )}
           </div>

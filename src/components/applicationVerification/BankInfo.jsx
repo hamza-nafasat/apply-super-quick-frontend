@@ -8,7 +8,7 @@ import {
   useUpdateFormSectionMutation,
 } from "@/redux/apis/formApis";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { CheckCircle, X, XCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -459,6 +459,7 @@ function BankInfo({
               step={step}
               onSave={signatureUploadHandler}
               oldSignatureUrl={getSignatureUrl(form?.signature)}
+              signedBy={getSignedBy(reduxData)}
             />
           )}
         </div>

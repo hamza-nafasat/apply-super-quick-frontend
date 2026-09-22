@@ -2,7 +2,7 @@ import { useEnterToNextField } from "@/hooks/useEnterToNextField";
 import { makeDocLinkHandler } from "@/lib/makeDocLinkHandler";
 import { updateFormState } from "@/redux/slices/formSlice";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -260,6 +260,7 @@ function AggrementBlock({
               step={step}
               onSave={signatureUploadHandler}
               oldSignatureUrl={getSignatureUrl(form?.signature)}
+              signedBy={getSignedBy(reduxData)}
             />
           </>
         )}

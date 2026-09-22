@@ -1,4 +1,5 @@
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
+import { getSignedBy } from "@/utils/signatureShape";
 import { toast } from "react-toastify";
 import SignatureBox from "../../shared/SignatureBox";
 import { FileInputType, OtherInputType } from "./shared/DynamicFieldForPdf";
@@ -79,6 +80,7 @@ function DocumentsPdf({ name, fields, step, isSignature, formInnerData, setFormI
             isPdf={true}
             onSave={signatureUploadHandler}
             oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+            signedBy={getSignedBy(formInnerData?.[sectionKey])}
           />
         )}
       </div>

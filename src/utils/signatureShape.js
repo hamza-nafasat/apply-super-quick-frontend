@@ -45,3 +45,28 @@ export function normalizeFieldEntry(raw, fieldName = "") {
   }
   return { name: fieldName, value: raw };
 }
+
+/**
+ * Who signed a section, from data every section save already stores (`updatedBy`,
+ * `updatedAt`) — saving a signature is a section save, so no extra fields are needed.
+ * Returns { name, email, at } or null when the section has no signer recorded.
+ */
+export function getSignedBy(sectionData) {
+  const by = sectionData?.updatedBy;
+  const name = String(by?.name || "").replace(/\bundefined\b/g, "").trim();
+  const email = String(by?.email || "").trim();
+  if (!name && !email) return null;
+  return { name, email, at: sectionData?.updatedAt || null };
+}
+
+/** "Signed by Jane Doe (jane@x.com) on 22 Sept 2026, 14:05" — one line for every presentation. */
+export function formatSignedBy(signedBy) {
+  if (!signedBy) return "";
+  const who = [signedBy.name, signedBy.email ? `(${signedBy.email})` : ""].filter(Boolean).join(" ");
+  const when = signedBy.at
+    ? new Date(signedBy.at).toLocaleString(undefined, {
+        year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+      })
+    : "";
+  return `Signed by ${who}${when ? ` on ${when}` : ""}`;
+}

@@ -1,4 +1,5 @@
 import { FIELD_TYPES, formKeys } from "@/data/constants";
+import { getSignedBy } from "@/utils/signatureShape";
 import { sectionEntries } from "@/lib/sectionCompletion";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
 import { toast } from "react-toastify";
@@ -160,6 +161,7 @@ function CustomSectionPdf({ fields, name, step, isSignature, formInnerData, setF
                   isPdf={true}
                   onSave={signatureUploadHandler}
                   oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+                  signedBy={getSignedBy(formInnerData?.[sectionKey])}
                 />
               </>
             )}

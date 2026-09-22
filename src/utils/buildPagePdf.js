@@ -118,7 +118,7 @@ function agreementContentNodes(source) {
  * @param {string}   [opts.displayHtml]    - Section display text HTML (shown before field rows)
  * @param {string}   [opts.signDisplayHtml] - Signature display text HTML (shown before signature)
  */
-export async function buildPagePdf({ pageName, fieldRows = [], signatureUrl = null, agreements = [], userName = null, userEmail = null, displayHtml = null, signDisplayHtml = null }) {
+export async function buildPagePdf({ pageName, fieldRows = [], signatureUrl = null, signedByLine = null, agreements = [], userName = null, userEmail = null, displayHtml = null, signDisplayHtml = null }) {
   const timestamp = new Date().toLocaleString(undefined, {
     year: "numeric", month: "long", day: "numeric",
     hour: "2-digit", minute: "2-digit", timeZoneName: "short",
@@ -176,6 +176,7 @@ export async function buildPagePdf({ pageName, fieldRows = [], signatureUrl = nu
         { text: "Signature:", bold: true, fontSize: 10, color: "#444444", margin: [0, 14, 0, 6] },
         { image: dataUri, width: 200, margin: [0, 0, 0, 4] },
       );
+      if (signedByLine) content.push({ text: signedByLine, style: "meta", margin: [0, 2, 0, 0] });
     }
   }
 

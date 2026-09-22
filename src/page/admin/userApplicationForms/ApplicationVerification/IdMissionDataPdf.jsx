@@ -1,4 +1,5 @@
 import SignatureBox from "@/components/shared/SignatureBox";
+import { getSignedBy } from "@/utils/signatureShape";
 import { RadioInputType, SimpleRadioInputType } from "@/components/shared/small/DynamicField";
 import TextField from "@/components/shared/small/TextField";
 import { useGetSingleFormQueryQuery } from "@/redux/apis/formApis";
@@ -546,6 +547,7 @@ const IdMissionDataPdf = ({ formId, sectionKey, formInnerData, setFormInnerData 
             disabled={isDisabledAllFields}
             isPdf={true}
             oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl}
+            signedBy={getSignedBy(formInnerData?.[sectionKey])}
             className={"min-w-full"}
             onSave={signatureUploadHandler}
           />

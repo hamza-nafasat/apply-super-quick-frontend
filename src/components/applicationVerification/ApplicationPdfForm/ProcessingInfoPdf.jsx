@@ -1,4 +1,5 @@
 import { FIELD_TYPES } from "@/data/constants";
+import { getSignedBy } from "@/utils/signatureShape";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
 import { toast } from "react-toastify";
 import SignatureBox from "../../shared/SignatureBox";
@@ -179,6 +180,7 @@ function ProcessingInfoPdf({ name, fields, step, isSignature, formInnerData, set
             isPdf={true}
             onSave={signatureUploadHandler}
             oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl || ""}
+            signedBy={getSignedBy(formInnerData?.[sectionKey])}
           />
         )}
       </div>

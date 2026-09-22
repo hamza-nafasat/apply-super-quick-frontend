@@ -2,7 +2,7 @@ import DisplayText from "@/components/shared/DisplayText";
 import { FIELD_TYPES } from "@/data/constants";
 import { useEnterToNextField } from "@/hooks/useEnterToNextField";
 import { deleteImageFromCloudinary, uploadImageOnCloudinary } from "@/utils/cloudinary";
-import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature } from "@/utils/signatureShape";
+import { getSignatureUrl, isSignatureComplete, normalizeFieldEntry, normalizeSignature, getSignedBy } from "@/utils/signatureShape";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -500,6 +500,7 @@ function CustomSection({
               step={step}
               onSave={signatureUploadHandler}
               oldSignatureUrl={getSignatureUrl(form?.signature)}
+              signedBy={getSignedBy(reduxData)}
             />
           </>
         )}

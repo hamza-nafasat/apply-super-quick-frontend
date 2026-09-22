@@ -1,4 +1,5 @@
 import SignatureBox from "@/components/shared/SignatureBox";
+import { getSignedBy } from "@/utils/signatureShape";
 import Button from "@/components/shared/small/Button";
 import CustomLoading from "@/components/shared/small/CustomLoading";
 import { AiHelpModal, RadioInputType } from "@/components/shared/small/DynamicField";
@@ -234,6 +235,10 @@ export default function SingleApplication() {
     },
     // Same shape as stepper: form.signature.value.secureUrl (local ID Mission state)
     signatureUrl: () => idMissionVerifiedData?.signature?.value?.secureUrl || null,
+    // Live line first (a signature saved before Next isn't in saved data yet), then saved data.
+    signedBy: () =>
+      (idMissionFormRef.current || document).querySelector("[data-signed-by]")?.getAttribute("data-signed-by") ||
+      getSignedBy(idMissionVerifiedData),
   });
   const handleSignature = async (file, setIsSaving) => {
     try {
@@ -843,6 +848,8 @@ export default function SingleApplication() {
         const saveRes = await saveInProgress({
           data: {
             ...idMissionVerifiedData,
+            // Same convention as stepper sections, so the signed-by line has a date too.
+            updatedAt: new Date().toISOString(),
             updatedBy: {
               _id: user?._id,
               email: user?.email,
@@ -1933,6 +1940,7 @@ export default function SingleApplication() {
                     >
                       <SignatureBox
                         oldSignatureUrl={idMissionVerifiedData?.signature?.value?.secureUrl || ""}
+                        signedBy={getSignedBy(idMissionVerifiedData)}
                         className={"min-w-full"}
                         onSave={handleSignature}
                       />

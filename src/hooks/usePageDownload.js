@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { formatSignedBy } from "@/utils/signatureShape";
 import { toast } from "react-toastify";
 import { UseAIChat } from "@/context/AiChatContext";
 import { extractHttpLinks } from "@/utils/extractHttpLinks";
@@ -23,7 +24,7 @@ const SERVER_URL = getEnv("SERVER_URL");
  * @param {string}   [opts.userEmail]      - Email of the applicant (included in PDF header)
  * @param {string}   [opts.signDisplayHtml] - HTML shown above the signature box (included in PDF)
  */
-export function usePageDownload({ pageName, displayHtml, getFieldRows, signatureUrl, getHasFields, userName, userEmail, signDisplayHtml }) {
+export function usePageDownload({ pageName, displayHtml, getFieldRows, signatureUrl, signedBy, getHasFields, userName, userEmail, signDisplayHtml }) {
   const { assistantMode } = UseAIChat();
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -89,6 +90,12 @@ export function usePageDownload({ pageName, displayHtml, getFieldRows, signature
         pageName,
         fieldRows: getFieldRows(),
         signatureUrl: liveSignatureUrl,
+        // Resolved at click time, like the signature, so a just-saved signature is included.
+        signedByLine: (() => {
+          const resolved = typeof signedBy === "function" ? signedBy() : signedBy;
+          // A caller may hand back the already-formatted line read from the page.
+          return (typeof resolved === "string" ? resolved : formatSignedBy(resolved)) || null;
+        })(),
         agreements,
         userName: userName || null,
         userEmail: userEmail || null,
