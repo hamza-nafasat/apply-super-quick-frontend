@@ -228,7 +228,7 @@ const SelectInputType = ({ field, className, form, setForm, onChange }) => {
 
   return (
     <>
-      <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={aiPrompt || undefined}>
+      <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
         {openAiHelpModal && (
           <Modal onClose={() => setOpenAiHelpModal(false)}>
             <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />
@@ -309,7 +309,7 @@ const MultiCheckboxInputType = ({ field, className, form, setForm }) => {
     }
   };
   return (
-    <div className={`flex w-full justify-between gap-4 ${className}`} data-ai-help-context={aiPrompt || undefined}>
+    <div className={`flex w-full justify-between gap-4 ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       {openAiHelpModal && (
         <Modal onClose={() => setOpenAiHelpModal(false)}>
           <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />
@@ -361,7 +361,7 @@ const RadioInputType = ({ field, className, form, setForm, onChange, disabled = 
   const [openAiHelpModal, setOpenAiHelpModal] = useState(false);
   const radioHandler = (option) => setForm({ ...form, [uniqueId]: { name: name, value: option.value } });
   return (
-    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={aiPrompt || undefined}>
+    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       {openAiHelpModal && (
         <Modal onClose={() => setOpenAiHelpModal(false)}>
           <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />
@@ -423,7 +423,7 @@ const CheckboxInputType = ({ field, className, form, setForm }) => {
 
   const singleCheckBoxHandler = (e) => setForm({ ...form, [uniqueId]: { name: name, value: e.target.checked } });
   return (
-    <div className="flex flex-col gap-2" data-ai-help-context={aiPrompt || undefined}>
+    <div className="flex flex-col gap-2" data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       <div className={`flex flex-col justify-between ${className}`}>
         {openAiHelpModal && (
           <Modal onClose={() => setOpenAiHelpModal(false)}>
@@ -520,7 +520,7 @@ const RangeInputType = ({ field, className, form, setForm }) => {
     setForm({ ...form, [uniqueId]: { name: name, value: targetVAlue } });
   };
   return (
-    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={aiPrompt || undefined}>
+    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       {openAiHelpModal && (
         <Modal onClose={() => setOpenAiHelpModal(false)}>
           <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />
@@ -716,7 +716,7 @@ const OtherInputType = ({ field, className, form, setForm, isConfirmField, sugge
         </Modal>
       )}
 
-      <div className="flex w-full flex-col items-start gap-4" data-ai-help-context={aiPrompt || undefined}>
+      <div className="flex w-full flex-col items-start gap-4" data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
         <article className="flex w-full flex-col items-start gap-2">
           {ai_formatting && isDisplayText && (
             <div className="gap-4p-4 flex h-full w-full flex-col">
@@ -1083,7 +1083,7 @@ const FileInputType = ({ field, className, form, setForm }) => {
   const handleDragOver = (e) => e.preventDefault();
 
   return (
-    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={aiPrompt || undefined}>
+    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       {openAiHelpModal && (
         <Modal onClose={() => setOpenAiHelpModal(false)}>
           <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />
@@ -1261,7 +1261,7 @@ export const SimpleRadioInputType = ({ field, className, form, setForm, onChange
   // treat radios in different boxes as one mutually-exclusive group.
   const radioGroupName = groupName || name;
   return (
-    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={aiPrompt || undefined}>
+    <div className={`flex w-full flex-col items-start ${className}`} data-ai-help-context={(field?.aiHelp && aiPrompt) || undefined}>
       {openAiHelpModal && (
         <Modal onClose={() => setOpenAiHelpModal(false)}>
           <AiHelpModal aiPrompt={aiPrompt} aiResponse={aiResponse} setOpenAiHelpModal={setOpenAiHelpModal} />

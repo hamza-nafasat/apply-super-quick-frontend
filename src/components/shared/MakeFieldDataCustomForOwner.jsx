@@ -82,26 +82,6 @@ const MakeFieldDataCustomForOwner = ({ originalFieldData, fieldsData, setFieldsD
       toast.error(err?.data?.message || 'Failed to format text');
     }
   }, [field?.displayTextFormattingInstructions, field.displayText, formateTextInMarkDown, index, setFieldsData]);
-  const getResponseFromAi = useCallback(async () => {
-    const aiPrompt = field.aiPrompt || '';
-    if (!aiPrompt) {
-      return toast.error('Please enter formatting instruction and text to format');
-    }
-    try {
-      const res = await formateTextInMarkDown({
-        text: aiPrompt,
-      }).unwrap();
-      if (res.success) {
-        let html = DOMPurify.sanitize(res.data);
-        //  update ai_response
-        setFieldsData(prev => prev.map((item, idx) => (idx !== index ? item : { ...item, aiResponse: html })));
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.data?.message || 'Failed to format text');
-    }
-  }, [field.aiPrompt, formateTextInMarkDown, index, setFieldsData]);
-
   const simpleFieldType = [
     FIELD_TYPES.TEXT,
     FIELD_TYPES.NUMBER,
@@ -177,7 +157,8 @@ const MakeFieldDataCustomForOwner = ({ originalFieldData, fieldsData, setFieldsD
             onChange={e => updateFieldDataField(e, true)}
           />
         </div>
-        {/* AI prompt & response */}
+        {/* AI Help: only the prompt is stored. It becomes this field's help context for the chat
+            assistant, which answers applicants live — no response is generated or saved here. */}
         {field?.aiHelp && (
           <div className="flex w-full flex-col items-center gap-2">
             <div className="flex w-full items-center gap-2">
@@ -188,24 +169,7 @@ const MakeFieldDataCustomForOwner = ({ originalFieldData, fieldsData, setFieldsD
                 name="aiPrompt"
                 onChange={updateFieldDataField}
               />
-              <Button onClick={getResponseFromAi} disabled={isLoading} className="bg-primary mt-8 text-white">
-                Generate
-              </Button>
             </div>
-            {field?.aiResponse && (
-              <div className="w-full flex-col py-4">
-                <h6 className="text-textPrimary py-2 text-xl font-semibold">AI Response</h6>
-                <div
-                  className="h-full p-4"
-                  dangerouslySetInnerHTML={{
-                    __html: String(field?.aiResponse || '').replace(/<a(\s+.*?)?>/g, match => {
-                      if (match.includes('target=')) return match; // avoid duplicates
-                      return match.replace('<a', '<a target="_blank" rel="noopener noreferrer"');
-                    }),
-                  }}
-                />
-              </div>
-            )}
           </div>
         )}
 

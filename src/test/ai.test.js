@@ -496,6 +496,22 @@ describe("components/shared/AIChat · aiChatConstants · navigation contract", (
   );
 });
 
+describe("field AI Help — prompt only", () => {
+  it("customizing stores just the prompt: no Generate step, no response", () => {
+    for (const f of ["components/shared/MakeFieldDataCustom.jsx", "components/shared/MakeFieldDataCustomForOwner.jsx"]) {
+      const src = read(f);
+      assert.doesNotMatch(src, /getResponseFromAi|aiResponse/, f);
+      assert.match(src, /name="aiPrompt"/, f);
+    }
+  });
+
+  it("sends the prompt to the chat as help context only while AI Help is enabled", () => {
+    const src = read("components/shared/small/DynamicField.jsx");
+    assert.doesNotMatch(src, /data-ai-help-context=\{aiPrompt \|\| undefined\}/);
+    assert.equal((src.match(/data-ai-help-context=\{\(field\?\.aiHelp && aiPrompt\) \|\| undefined\}/g) || []).length, 8);
+  });
+});
+
 describe("components/shared/AIChat · language selection", () => {
   const widget = read("components/shared/AIChat/AIChatWidget.jsx");
   const tools = read("components/shared/AIChat/logic/applyToolCall.js");
@@ -790,12 +806,13 @@ describe("components/shared/AIChat · applyToolCall · AI-mode admin flows", () 
   describe("[QA 4.17 / 4.18] AI Help on a customised field", () => {
     const customField = read("components/shared/MakeFieldDataCustom.jsx");
 
-    it("enables AI Help per field and generates the help text", () => {
+    it("enables AI Help per field and takes only a prompt — nothing is generated", () => {
       assert.match(customField, /label="Enable AI Help"/);
-      assert.match(customField, /onClick=\{getResponseFromAi\}/);
+      assert.match(customField, /name="aiPrompt"/);
+      assert.doesNotMatch(customField, /getResponseFromAi|aiResponse/);
     });
 
-    it("generates through the display-text formatting endpoint", () => {
+    it("still formats display text through the formatting endpoint", () => {
       assert.match(customField, /formateTextInMarkDown\(\{/);
       assert.match(read("redux/apis/formApis.js"), /url: "\/formate-display-text"/);
     });

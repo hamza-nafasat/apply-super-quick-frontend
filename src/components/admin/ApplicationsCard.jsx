@@ -434,7 +434,6 @@ export default function ApplicationsCard() {
             placeholder,
             aiHelp,
             aiPrompt,
-            aiResponse,
             ai_formatting,
           } of fieldChanges) {
             sectionMap[String(fieldId)] = {
@@ -446,7 +445,6 @@ export default function ApplicationsCard() {
               ...(placeholder !== undefined && { placeholder }),
               ...(aiHelp !== undefined && { aiHelp }),
               ...(aiPrompt !== undefined && { aiPrompt }),
-              ...(aiResponse !== undefined && { aiResponse }),
               ...(ai_formatting !== undefined && { ai_formatting }),
             };
           }
@@ -665,7 +663,6 @@ export default function ApplicationsCard() {
                 ...(upd.placeholder !== undefined && { placeholder: upd.placeholder }),
                 ...(upd.aiHelp !== undefined && { aiHelp: upd.aiHelp }),
                 ...(upd.aiPrompt !== undefined && { aiPrompt: upd.aiPrompt }),
-                ...(upd.aiResponse !== undefined && { aiResponse: upd.aiResponse }),
                 ...(upd.ai_formatting !== undefined && { ai_formatting: upd.ai_formatting }),
               };
             });
