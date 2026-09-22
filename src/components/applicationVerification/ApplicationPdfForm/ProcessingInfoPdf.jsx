@@ -14,7 +14,7 @@ import {
 } from "./shared/DynamicFieldForPdf";
 
 function ProcessingInfoPdf({ name, fields, step, isSignature, formInnerData, setFormInnerData, sectionKey }) {
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
       if (file) {
@@ -30,7 +30,7 @@ function ProcessingInfoPdf({ name, fields, step, isSignature, formInnerData, set
         // setForm(prev => ({ ...prev, signature: res }));
         setFormInnerData((prev) => ({
           ...prev,
-          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
         }));
         toast.success("Signature uploaded successfully");
       }

@@ -1,5 +1,5 @@
 import SignatureBox from "@/components/shared/SignatureBox";
-import { getSignedBy } from "@/utils/signatureShape";
+import { getIdMissionSignedBy } from "@/utils/signatureShape";
 import Button from "@/components/shared/small/Button";
 import CustomLoading from "@/components/shared/small/CustomLoading";
 import { AiHelpModal, RadioInputType } from "@/components/shared/small/DynamicField";
@@ -238,7 +238,7 @@ export default function SingleApplication() {
     // Live line first (a signature saved before Next isn't in saved data yet), then saved data.
     signedBy: () =>
       (idMissionFormRef.current || document).querySelector("[data-signed-by]")?.getAttribute("data-signed-by") ||
-      getSignedBy(idMissionVerifiedData),
+      getIdMissionSignedBy(idMissionVerifiedData),
   });
   const handleSignature = async (file, setIsSaving) => {
     try {
@@ -505,7 +505,9 @@ export default function SingleApplication() {
                 value: formDataOfIdMission?.roleFillingForCompany?.value || "primaryOperatorAndController",
               },
               createdAt: formDataOfIdMission?.createdAt || new Date().toISOString(),
-              updatedAt: formDataOfIdMission?.updatedAt || new Date().toISOString(),
+              // Keep who signed and when as saved — the signed-by line reads these. No invented date.
+              updatedAt: formDataOfIdMission?.updatedAt,
+              updatedBy: formDataOfIdMission?.updatedBy,
             });
           }
           if (formDataOfIdMission?.name?.value && savedData?.company_lookup_data) {
@@ -843,22 +845,21 @@ export default function SingleApplication() {
           setSubmiting(false);
           return toast.error("You must save your signature before taking the next step.");
         }
-        const action = await dispatch(updateFormState({ data: idMissionVerifiedData, name: "idMission" }));
-        unwrapResult(action);
-        const saveRes = await saveInProgress({
-          data: {
-            ...idMissionVerifiedData,
-            // Same convention as stepper sections, so the signed-by line has a date too.
-            updatedAt: new Date().toISOString(),
-            updatedBy: {
-              _id: user?._id,
-              email: user?.email,
-              name: user?.firstName + " " + user?.lastName,
-              role: user?.role?.name,
-            },
+        // One payload for Redux AND the backend. Every later stepper save sends the whole Redux
+        // form, so a Redux copy without updatedBy/updatedAt used to overwrite the saved signer.
+        const idMissionPayload = {
+          ...idMissionVerifiedData,
+          updatedAt: new Date().toISOString(),
+          updatedBy: {
+            _id: user?._id,
+            email: user?.email,
+            name: user?.firstName + " " + user?.lastName,
+            role: user?.role?.name,
           },
-          name: "idMission",
-        });
+        };
+        const action = await dispatch(updateFormState({ data: idMissionPayload, name: "idMission" }));
+        unwrapResult(action);
+        const saveRes = await saveInProgress({ data: idMissionPayload, name: "idMission" });
         // If the draft was only created just now (e.g. a no-website flow with no lookup),
         // carry its id into the stepper so it keeps writing to the same draft.
         const effectiveDraftId = draftId || saveRes?.data?.draftId;
@@ -955,7 +956,9 @@ export default function SingleApplication() {
           value: formDataOfIdMission?.roleFillingForCompany?.value || "primaryOperatorAndController",
         },
         createdAt: formDataOfIdMission?.createdAt || new Date().toISOString(),
-        updatedAt: formDataOfIdMission?.updatedAt || new Date().toISOString(),
+        // Keep who signed and when as saved — the signed-by line reads these. No invented date.
+        updatedAt: formDataOfIdMission?.updatedAt,
+        updatedBy: formDataOfIdMission?.updatedBy,
       });
       setIdMissionVerified(true);
       setIdMissionDetailsReady(true);
@@ -1940,7 +1943,7 @@ export default function SingleApplication() {
                     >
                       <SignatureBox
                         oldSignatureUrl={idMissionVerifiedData?.signature?.value?.secureUrl || ""}
-                        signedBy={getSignedBy(idMissionVerifiedData)}
+                        signedBy={getIdMissionSignedBy(idMissionVerifiedData)}
                         className={"min-w-full"}
                         onSave={handleSignature}
                       />

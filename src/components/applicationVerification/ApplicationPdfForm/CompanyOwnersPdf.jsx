@@ -210,7 +210,7 @@ function CompanyOwnersPdf({ name, reduxData, fields, step, isSignature, formInne
     setOwnerVal("address", place.formatted_address, index);
   };
 
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
 
@@ -225,7 +225,7 @@ function CompanyOwnersPdf({ name, reduxData, fields, step, isSignature, formInne
       }
       setFormInnerData((prev) => ({
         ...prev,
-        [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+        [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
       }));
       toast.success("Signature uploaded successfully");
     } catch (error) {

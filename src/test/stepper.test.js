@@ -34,6 +34,7 @@ import { findFieldKeyByName, getFieldValueByName } from "../lib/formFieldLookup.
 import { isEnterSequenceType } from "../hooks/useEnterToNextField.js";
 import { makeDocLinkHandler } from "../lib/makeDocLinkHandler.js";
 import {
+  getIdMissionSignedBy,
   getSignatureUrl,
   isSignatureComplete,
   normalizeFieldEntry,
@@ -1170,23 +1171,33 @@ describe("signature · signed-by", () => {
   });
 
   it("shows the signer the moment Save is clicked, before the section itself is saved", () => {
-    assert.match(box, /setSignedNow\(\{\n\s*name: \[user\?\.firstName, user\?\.lastName\]/);
+    assert.match(box, /name: \[user\?\.firstName, user\?\.lastName\]\.filter\(Boolean\)\.join\(" "\)/);
+    assert.match(box, /setSignedNow\(\{ name: signer\.updatedBy\.name, email: signer\.updatedBy\.email, at: signer\.updatedAt \}\)/);
     assert.match(box, /formatSignedBy\(signedNow \|\| signedBy\)/);
     assert.match(box, /setClearedSaved\(true\);\n\s*setSignedNow\(null\);/);
   });
 
-  it("stores a date with the ID Mission signer, like every other section", () => {
-    assert.match(
-      read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx"),
-      /\.\.\.idMissionVerifiedData,\n[^\n]*\n\s*updatedAt: new Date\(\)\.toISOString\(\),\n\s*updatedBy:/,
-    );
+  describe("ID Mission signer survives save and reload", () => {
+    const page = read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx");
+
+    it("saves the same payload (with updatedBy + updatedAt) to Redux and the backend", () => {
+      // Later stepper saves send the whole Redux form — a signer-less Redux copy overwrote the DB.
+      assert.match(page, /const idMissionPayload = \{\n\s*\.\.\.idMissionVerifiedData,\n\s*updatedAt: new Date\(\)\.toISOString\(\),\n\s*updatedBy: \{/);
+      assert.match(page, /updateFormState\(\{ data: idMissionPayload, name: "idMission" \}\)/);
+      assert.match(page, /saveInProgress\(\{ data: idMissionPayload, name: "idMission" \}\)/);
+    });
+
+    it("restores the saved signer on reload, and never invents a date", () => {
+      assert.equal((page.match(/updatedBy: formDataOfIdMission\?\.updatedBy,/g) || []).length, 2);
+      assert.doesNotMatch(page, /updatedAt: formDataOfIdMission\?\.updatedAt \|\| new Date/);
+    });
   });
 
   it("disables Save once saved, and Clear re-enables it and hides the signed-by line", () => {
     assert.match(box, /disabled=\{isSaving \|\| isSaved\}/);
     assert.match(box, /const isSaved = !!oldSignatureUrl && !clearedSaved;/);
     assert.match(box, /setTypedSignature\(""\);\n\s*setClearedSaved\(true\);/);
-    assert.match(box, /await onSave\?\.\(file, setIsSaving\);\n\s*setClearedSaved\(false\);/);
+    assert.match(box, /await onSave\?\.\(file, setIsSaving, signer\);\n\s*setClearedSaved\(false\);/);
   });
 
   it("passes the signer on every presentation of a signature", () => {
@@ -1196,13 +1207,13 @@ describe("signature · signed-by", () => {
       "components/applicationVerification/ApplicationPdfForm/CompanyOwnersPdf.jsx",
       "page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx",
     ];
-    for (const f of files) assert.match(read(f), /signedBy=\{getSignedBy\(/, f);
+    for (const f of files) assert.match(read(f), /signedBy=\{get(IdMission)?SignedBy\(/, f);
   });
 
   it("includes the signer in the ID Mission page's own download too", () => {
     assert.match(
       read("page/admin/userApplicationForms/ApplicationVerification/SingleApplication.jsx"),
-      /signedBy: \(\) =>\n[^\n]*data-signed-by[^\n]*\n\s*getSignedBy\(idMissionVerifiedData\)/,
+      /signedBy: \(\) =>\n[^\n]*data-signed-by[^\n]*\n\s*getIdMissionSignedBy\(idMissionVerifiedData\)/,
     );
   });
 
@@ -1212,5 +1223,45 @@ describe("signature · signed-by", () => {
       read("page/admin/userApplicationForms/ApplicationVerification/ApplicationForm.jsx"),
       /querySelector\("\[data-signed-by\]"\)\?\.getAttribute\("data-signed-by"\) \|\|\n\s*getSignedBy\(formData\?\.\[currentSection\?\.key\]\)/,
     );
+  });
+});
+
+describe("signature · signed-by on the PDF / underwriting side", () => {
+  it("passes the signer to onSave so a re-sign in the viewer records the new signer", () => {
+    const box = read("components/shared/SignatureBox.jsx");
+    assert.match(box, /await onSave\?\.\(file, setIsSaving, signer\);/);
+    assert.match(box, /const signer = \{\n\s*updatedAt: new Date\(\)\.toISOString\(\),\n\s*updatedBy: \{/);
+  });
+
+  it("stores that signer with the signature in every PDF section and ID Mission", () => {
+    const files = [
+      "AgreementBlockPdf", "CustomSectionPdf", "BankInfoPdf", "CompanyOwnersPdf",
+      "CompanyInformationPdf", "DocumentsPdf", "ProcessingInfoPdf",
+    ].map((n) => `components/applicationVerification/ApplicationPdfForm/${n}.jsx`);
+    files.push("page/admin/userApplicationForms/ApplicationVerification/IdMissionDataPdf.jsx");
+    for (const f of files) {
+      const src = read(f);
+      assert.match(src, /async \(file, setIsSaving, signer\)/, f);
+      assert.match(src, /signature: \{ name: "signature", value: res \}, \.\.\.signer \}/, f);
+    }
+  });
+});
+
+describe("signature · ID Mission signer for applications saved before signers were stored", () => {
+  const idm = { name: { value: "Phyllis Leonard" }, email: { value: "p@x.com" }, createdAt: "2026-09-07T08:02:49.277Z" };
+
+  it("uses the saved signer when there is one", () => {
+    const saved = { ...idm, updatedBy: { name: "Richard Oglesby", email: "r@x.com" }, updatedAt: "2026-09-15T14:56:15Z" };
+    assert.deepEqual(getIdMissionSignedBy(saved), { name: "Richard Oglesby", email: "r@x.com", at: "2026-09-15T14:56:15Z" });
+  });
+
+  it("falls back to the verified identity, with the section's own date", () => {
+    assert.deepEqual(getIdMissionSignedBy(idm), { name: "Phyllis Leonard", email: "p@x.com", at: "2026-09-07T08:02:49.277Z" });
+  });
+
+  it("never invents a date, and shows nothing without an identity", () => {
+    assert.equal(getIdMissionSignedBy({ name: { value: "Jo" } }).at, null);
+    assert.equal(getIdMissionSignedBy({}), null);
+    assert.equal(getIdMissionSignedBy(undefined), null);
   });
 });

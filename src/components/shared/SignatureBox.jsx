@@ -202,13 +202,20 @@ export default function SignatureBox({ onSave, step, oldSignatureUrl, signedBy =
       const dataUrl = generateSignatureData();
       if (dataUrl) {
         const file = dataURLtoFile(dataUrl, "signature.png");
-        await onSave?.(file, setIsSaving);
+        // The signer, in the section's own updatedBy/updatedAt shape. Handlers that save the
+        // section here (PDF / underwriting viewer) store it with the signature image.
+        const signer = {
+          updatedAt: new Date().toISOString(),
+          updatedBy: {
+            _id: user?._id,
+            email: user?.email || "",
+            name: [user?.firstName, user?.lastName].filter(Boolean).join(" "),
+            role: user?.role?.name,
+          },
+        };
+        await onSave?.(file, setIsSaving, signer);
         setClearedSaved(false);
-        setSignedNow({
-          name: [user?.firstName, user?.lastName].filter(Boolean).join(" "),
-          email: user?.email || "",
-          at: new Date().toISOString(),
-        });
+        setSignedNow({ name: signer.updatedBy.name, email: signer.updatedBy.email, at: signer.updatedAt });
         setMode("draw");
       }
     } catch (err) {

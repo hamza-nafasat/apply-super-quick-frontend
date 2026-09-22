@@ -70,3 +70,17 @@ export function formatSignedBy(signedBy) {
     : "";
   return `Signed by ${who}${when ? ` on ${when}` : ""}`;
 }
+
+/**
+ * ID Mission signer. The page is signed by the person whose identity was verified, so when
+ * a section has no saved signer — applications saved before the signer was stored — fall
+ * back to that verified name/email, with the section's own saved date if it has one.
+ */
+export function getIdMissionSignedBy(idMission) {
+  const saved = getSignedBy(idMission);
+  if (saved) return saved;
+  const name = String(idMission?.name?.value || "").trim();
+  const email = String(idMission?.email?.value || "").trim();
+  if (!name && !email) return null;
+  return { name, email, at: idMission?.updatedAt || idMission?.createdAt || null };
+}

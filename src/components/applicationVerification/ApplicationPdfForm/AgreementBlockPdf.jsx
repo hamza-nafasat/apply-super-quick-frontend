@@ -9,7 +9,7 @@ import SignatureBox from "../../shared/SignatureBox";
 function AggrementBlockPdf({ name, step, isSignature, formInnerData, setFormInnerData, sectionKey }) {
   const dispatch = useDispatch();
 
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
       if (file) {
@@ -22,12 +22,12 @@ function AggrementBlockPdf({ name, step, isSignature, formInnerData, setFormInne
         if (!res.publicId || !res.secureUrl || !res.resourceType)
           return toast.error("File Not Uploaded Please Try Again");
         const action = await dispatch(
-          updateFormState({ data: { signature: { name: "signature", value: res } }, name: sectionKey }),
+          updateFormState({ data: { signature: { name: "signature", value: res }, ...signer }, name: sectionKey }),
         );
         unwrapResult(action);
         setFormInnerData((prev) => ({
           ...prev,
-          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
         }));
         toast.success("Signature uploaded successfully");
       }

@@ -23,7 +23,7 @@ function CustomSectionPdf({ fields, name, step, isSignature, formInnerData, setF
   const sectionData = formInnerData?.[sectionKey];
   const isMultiEntry = MULTI_ENTRY_SECTION_KEYS.has(sectionKey) && Array.isArray(sectionData);
 
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
       if (file) {
@@ -38,7 +38,7 @@ function CustomSectionPdf({ fields, name, step, isSignature, formInnerData, setF
         }
         setFormInnerData((prev) => ({
           ...prev,
-          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
         }));
         toast.success("Signature uploaded successfully");
       }

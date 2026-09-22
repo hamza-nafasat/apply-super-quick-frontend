@@ -48,7 +48,7 @@ function CompanyInformationPdf({
   const [naicsLoading, setNaicsLoading] = useState(false);
   const [findNaicsToMccDetails] = useFindNaicAndMccMutation();
 
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
       if (file) {
@@ -63,7 +63,7 @@ function CompanyInformationPdf({
         }
         setFormInnerData((prev) => ({
           ...prev,
-          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
         }));
         toast.success("Signature uploaded successfully");
       }

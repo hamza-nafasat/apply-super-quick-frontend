@@ -1,5 +1,5 @@
 import SignatureBox from "@/components/shared/SignatureBox";
-import { getSignedBy } from "@/utils/signatureShape";
+import { getIdMissionSignedBy } from "@/utils/signatureShape";
 import { RadioInputType, SimpleRadioInputType } from "@/components/shared/small/DynamicField";
 import TextField from "@/components/shared/small/TextField";
 import { useGetSingleFormQueryQuery } from "@/redux/apis/formApis";
@@ -15,7 +15,7 @@ const IdMissionDataPdf = ({ formId, sectionKey, formInnerData, setFormInnerData 
   const { isDisabledAllFields } = useSelector((state) => state.form);
   const autocompleteRef = useRef(null);
 
-  const signatureUploadHandler = async (file, setIsSaving) => {
+  const signatureUploadHandler = async (file, setIsSaving, signer) => {
     try {
       if (!file) return toast.error("Please select a file");
       if (file) {
@@ -30,7 +30,7 @@ const IdMissionDataPdf = ({ formId, sectionKey, formInnerData, setFormInnerData 
         }
         setFormInnerData((prev) => ({
           ...prev,
-          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res } },
+          [sectionKey]: { ...prev?.[sectionKey], signature: { name: "signature", value: res }, ...signer },
         }));
         toast.success("Signature uploaded successfully");
       }
@@ -547,7 +547,7 @@ const IdMissionDataPdf = ({ formId, sectionKey, formInnerData, setFormInnerData 
             disabled={isDisabledAllFields}
             isPdf={true}
             oldSignatureUrl={formInnerData?.[sectionKey]?.signature?.value?.secureUrl}
-            signedBy={getSignedBy(formInnerData?.[sectionKey])}
+            signedBy={getIdMissionSignedBy(formInnerData?.[sectionKey])}
             className={"min-w-full"}
             onSave={signatureUploadHandler}
           />
